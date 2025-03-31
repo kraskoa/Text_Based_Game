@@ -1,7 +1,60 @@
 /* "Klata, biceps, barki", by Mateusz Daszewski, Adam Kraś, Krzysztof Król */
 
-:- dynamic i_am_at/1, at/2, holding/1, strength/1, lifted/2.
+:- dynamic i_am_at/1, at/2, holding/1, strength/1, lifted/2, money/1.
 :- retractall(at(_, _)), retractall(i_am_at(_)), retractall(holding(_)), retractall(strength(_)), retractall(lifted(_, _)).
+
+/* Początkowa siła, podniesione ciężary oraz pieniądze */
+random_strength_and_money :-
+    random(50, 201, S),  % Siła w zakresie 50-200 kg
+    random(100, 1001, M), % Pieniądze w zakresie 100 - 1000 zł
+    assert(strength(S)),
+    assert(money(M)),
+    assert(lifted(klatka_piersiowa, 0)),
+    assert(lifted(barki, 0)),
+    assert(lifted(biceps, 0)).
+
+/* Przedmioty do kupienia na recepcji */
+item_price(monster, 5).
+item_price(przedtreningowka, 15).
+
+/* Zbieranie pieniędzy z początkową wartością */
+check_money :-
+    money(M),
+    write('Masz '), write(M), write(' zł na koncie.'), nl.
+
+/* Zakup przedmiotów */
+buy_item(monster) :-
+    money(M),
+    item_price(monster, Price),
+    M >= Price,
+    NewMoney is M - Price,
+    retract(money(M)),
+    assert(money(NewMoney)),
+    increase_strength(3), % Zwiększamy siłę o 3
+    write('Kupiono Monster. Siła wzrosła o 3!'), nl,
+    write('Pozostało Ci '), write(NewMoney), write(' zł.'), nl.
+
+buy_item(przedtreningowka) :-
+    money(M),
+    item_price(przedtreningowka, Price),
+    M >= Price,
+    NewMoney is M - Price,
+    retract(money(M)),
+    assert(money(NewMoney)),
+    increase_strength(10), % Zwiększamy siłę o 10
+    write('Kupiono przedtreningówkę. Siła wzrosła o 10!'), nl,
+    write('Pozostało Ci '), write(NewMoney), write(' zł.'), nl.
+
+buy_item(_) :-
+    write('Nie masz wystarczająco pieniędzy!'), nl.
+
+/* Zwiększanie siły */
+increase_strength(Value) :-
+    strength(S),
+    NewStrength is S + Value,
+    retract(strength(S)),
+    assert(strength(NewStrength)),
+    write('Twoja siła wzrosła do '), write(NewStrength), write(' kg!'), nl.
 
 /* Lokacje */
 i_am_at(dom).
@@ -33,14 +86,6 @@ at(karnet, dom).
 at(hantle, strefa_wolnych_ciezarow).
 at(sztanga, strefa_wolnych_ciezarow).
 at(kettlebell, strefa_wolnych_ciezarow).
-
-/* Początkowa siła i podniesione ciężary */
-random_strength :-
-        random(50, 201, S),  % Siła w zakresie 50-200 kg
-        assert(strength(S)),
-        assert(lifted(klatka_piersiowa, 0)),
-        assert(lifted(barki, 0)),
-        assert(lifted(biceps, 0)).
 
 /* Podnoszenie przedmiotów */
 take(X) :-
