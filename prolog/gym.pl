@@ -1,4 +1,4 @@
-/* Trening na siłowni, by <Twoje imię> */
+/* "Klata, biceps, barki", by Mateusz Daszewski, Adam Kraś, Krzysztof Król */
 
 :- dynamic i_am_at/1, at/2, holding/1, strength/1, lifted/2.
 :- retractall(at(_, _)), retractall(i_am_at(_)), retractall(holding(_)), retractall(strength(_)), retractall(lifted(_, _)).
@@ -6,15 +6,25 @@
 /* Lokacje */
 i_am_at(dom).
 
-path(dom, ulica).
-path(ulica, szatnia_meska).
-path(ulica, szatnia_damska).
-path(szatnia_meska, strefa_maszyn).
-path(szatnia_meska, strefa_wolnych_ciezarow).
-path(szatnia_meska, strefa_cardio).
-path(szatnia_damska, strefa_maszyn).
-path(szatnia_damska, strefa_wolnych_ciezarow).
-path(szatnia_damska, strefa_cardio).
+/* Ścieżki między lokacjami (dwustronne) */
+path(dom, n, ulica).
+path(ulica, s, dom).
+path(ulica, n, recepcja).
+path(recepcja, s, ulica).
+path(recepcja, e, szatnia_meska).
+path(szatnia_meska, w, recepcja).
+path(recepcja, w, szatnia_damska).
+path(szatnia_damska, e, recepcja).
+path(szatnia_meska, n, strefa_wolnych_ciezarow).
+path(strefa_wolnych_ciezarow, s, szatnia_meska).
+path(szatnia_meska, s, strefa_cardio).
+path(strefa_cardio, n, szatnia_meska).
+path(szatnia_damska, e, strefa_maszyn).
+path(strefa_maszyn, w, szatnia_damska).
+path(szatnia_damska, w, strefa_wolnych_ciezarow).
+path(strefa_wolnych_ciezarow, e, szatnia_damska).
+path(szatnia_damska, s, strefa_cardio).
+path(strefa_cardio, n, szatnia_damska).
 
 /* Przedmioty */
 at(strój_sportowy, dom).
