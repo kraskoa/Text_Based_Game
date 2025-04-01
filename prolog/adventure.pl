@@ -134,3 +134,110 @@ start :-
 
 describe(someplace) :- write('You are someplace.'), nl.
 
+
+% Takie funkcje przydałpby się rozwinąć, część z nich już jest powyżej rozpisana
+idz(Place).         % Move to a new location
+rozmawiaj(Person).  % Talk to NPCs
+podnies(Object).    % Pick up an item
+odloz(Object).      % Drop an item
+wypij(monsterek).   % Drink energy drink for a boost
+ocen_sile.          % Check your strength
+
+% Definiowanie lokacji
+i_am_at(parking).
+i_am_at(recepcja).
+i_am_at(szatnia).
+i_am_at(strefa_cardio).
+i_am_at(wolne_ciezary).
+i_am_at(maszyna_biceps).
+i_am_at(sztanga).
+
+% % Tutaj od czata jakieś cuda, można zaadaptować do naszej gry:
+% % Define paths between locations
+% path(parking, recepcja).
+% path(recepcja, szatnia).
+% path(recepcja, strefa_cardio).
+% path(strefa_cardio, wolne_ciezary).
+% path(szatnia, wolne_ciezary).
+% path(wolne_ciezary, maszyna_biceps).
+% path(wolne_ciezary, sztanga).
+
+% idz(Place) :-
+%         i_am_at(Current),
+%         path(Current, Place),
+%         retract(i_am_at(Current)),
+%         assert(i_am_at(Place)),
+%         look, !.
+
+% idz(_) :-
+%         write('Nie możesz tam iść.'), nl.
+
+%         :- dynamic at/2, holding/1. % at(Item, Location), holding(Item)
+
+% % Items in the game world
+% at(karnet, recepcja).
+% at(hantle_20kg, wolne_ciezary).
+% at(ciężary_10kg, sztanga).
+% at(monsterek, szatnia).
+
+% :- dynamic carrying_weight/1.
+% carrying_weight(0).
+
+% max_weight(40). % Max inventory weight
+
+% item_weight(hantle_20kg, 20).
+% item_weight(ciężary_10kg, 10).
+% item_weight(monsterek, 0). % No weight for drinks
+
+% take(Item) :-
+%     holding(Item),
+%     write('Już masz to w rękach!'), nl, !.
+
+% take(Item) :-
+%     i_am_at(Place),
+%     at(Item, Place),
+%     carrying_weight(W),
+%     item_weight(Item, IW),
+%     max_weight(MaxW),
+%     NewW is W + IW,
+%     NewW =< MaxW,
+%     retract(at(Item, Place)),
+%     assert(holding(Item)),
+%     retract(carrying_weight(W)),
+%     assert(carrying_weight(NewW)),
+%     write('Podniosłeś '), write(Item), write('.'), nl, !.
+
+% take(Item) :-
+%     carrying_weight(W),
+%     item_weight(Item, IW),
+%     max_weight(MaxW),
+%     W + IW > MaxW,
+%     write('Nie możesz unieść więcej!'), nl, !.
+
+% take(_) :-
+%     write('Nie widzę tego tutaj.'), nl.
+
+
+% drop(Item) :-
+%         holding(Item),
+%         i_am_at(Place),
+%         retract(holding(Item)),
+%         assert(at(Item, Place)),
+%         carrying_weight(W),
+%         item_weight(Item, IW),
+%         NewW is W - IW,
+%         retract(carrying_weight(W)),
+%         assert(carrying_weight(NewW)),
+%         write('Odłożyłeś '), write(Item), write('.'), nl, !.
+
+% drop(_) :-
+%         write('Nie masz tego przedmiotu!'), nl.
+
+% inventory :-
+%         write('Masz przy sobie:'), nl,
+%         holding(Item),
+%         write('- '), write(Item), nl, fail.
+
+% inventory :-
+%         carrying_weight(W),
+%         write('Łączna waga: '), write(W), write(' kg.'), nl, !.
