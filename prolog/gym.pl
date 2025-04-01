@@ -6,7 +6,7 @@
 /* Początkowa siła, podniesione ciężary oraz pieniądze */
 random_strength_and_money :-
     random(50, 201, S),  % Siła w zakresie 50-200 kg
-    random(100, 1001, M), % Pieniądze w zakresie 100 - 1000 zł
+    random(0, 51, M), % Pieniądze w zakresie 100 - 1000 zł
     assert(strength(S)),
     assert(money(M)),
     assert(lifted(klatka_piersiowa, 0)),
@@ -60,24 +60,33 @@ increase_strength(Value) :-
 i_am_at(dom).
 
 /* Ścieżki między lokacjami (dwustronne) */
-path(dom, n, ulica).
-path(ulica, s, dom).
-path(ulica, n, recepcja).
-path(recepcja, s, ulica).
-path(recepcja, e, szatnia_meska).
-path(szatnia_meska, w, recepcja).
-path(recepcja, w, szatnia_damska).
-path(szatnia_damska, e, recepcja).
-path(szatnia_meska, n, strefa_wolnych_ciezarow).
-path(strefa_wolnych_ciezarow, s, szatnia_meska).
-path(szatnia_meska, s, strefa_cardio).
-path(strefa_cardio, n, szatnia_meska).
-path(szatnia_damska, e, strefa_maszyn).
-path(strefa_maszyn, w, szatnia_damska).
-path(szatnia_damska, w, strefa_wolnych_ciezarow).
-path(strefa_wolnych_ciezarow, e, szatnia_damska).
-path(szatnia_damska, s, strefa_cardio).
-path(strefa_cardio, n, szatnia_damska).
+path(dom, ulica).
+path(ulica, dom).
+path(ulica, recepcja).
+path(recepcja, ulica).
+path(recepcja, szatnia_meska).
+path(szatnia_meska, recepcja).
+path(recepcja, szatnia_damska).
+path(szatnia_damska, recepcja).
+path(szatnia_meska, strefa_wolnych_ciezarow).
+path(strefa_wolnych_ciezarow, szatnia_meska).
+path(szatnia_meska, strefa_cardio).
+path(strefa_cardio, szatnia_meska).
+path(szatnia_damska, strefa_maszyn).
+path(strefa_maszyn, szatnia_damska).
+path(szatnia_damska, strefa_wolnych_ciezarow).
+path(strefa_wolnych_ciezarow, szatnia_damska).
+path(szatnia_damska, strefa_cardio).
+path(strefa_cardio, szatnia_damska).
+
+available_paths :-
+    i_am_at(Here),
+    findall(Direction, path(Here, Direction, _), Directions),
+    (Directions \= [] -> 
+        write('Możesz iść w kierunkach: '), write(Directions), nl
+    ; 
+        write('Nie ma żadnych dostępnych ścieżek z tej lokacji.'), nl).
+
 
 /* Przedmioty */
 at(strój_sportowy, dom).
@@ -112,6 +121,14 @@ drop(X) :-
 
 drop(_) :-
         write('Nie masz tego przedmiotu!'), nl.
+
+inventory :-
+    findall(Item, holding(Item), Items),
+    (Items \= [] ->
+        write('Twój ekwipunek: '), write(Items), nl
+    ;
+        write('Twój ekwipunek jest pusty!'), nl).
+
 
 /* Ruch */
 go(Direction) :-
@@ -214,7 +231,7 @@ notice_objects_at(_).
 start :-
         write('Twoim celem jest odbycie treningu na siłowni.'), nl,
         write('Zbierz potrzebny ekwipunek z domu, wejdź na siłownię i wykonaj ćwiczenia!'), nl,
-        random_strength,
+        random_strength_and_money,
         look.
 
 /* Zakończenie gry */
