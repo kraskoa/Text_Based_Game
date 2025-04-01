@@ -5,17 +5,26 @@
 
 /* Początkowa siła, podniesione ciężary oraz pieniądze */
 random_strength_and_money :-
-    random(50, 201, S),  % Siła w zakresie 50-200 kg
-    random(0, 51, M), % Pieniądze w zakresie 100 - 1000 zł
+    random(50, 151, S),  % Siła w zakresie 50-150 kg
+    random(0, 51, M), % Pieniądze w zakresie 0 - 50 zł
     assert(strength(S)),
     assert(money(M)),
     assert(lifted(klatka_piersiowa, 0)),
     assert(lifted(barki, 0)),
     assert(lifted(biceps, 0)).
 
+/* Postacie poboczne */
+npc(recepcjonistka).
+npc(podejrzany_typ).
+
 /* Przedmioty do kupienia na recepcji */
-item_price(monster, 5).
-item_price(przedtreningowka, 15).
+item_price(monster, 10).
+item_price(przedtreningowka, 20).
+item_price(karnet, 40).
+
+/* Przedmioty do kupienia u podejrzanego typa na parkingu */
+item_price(mala_strzykawka, 30).
+item_price(duza_strzykawka, 50).
 
 /* Zbieranie pieniędzy z początkową wartością */
 check_money :-
@@ -30,8 +39,7 @@ buy_item(monster) :-
     NewMoney is M - Price,
     retract(money(M)),
     assert(money(NewMoney)),
-    increase_strength(3), % Zwiększamy siłę o 3
-    write('Kupiono Monster. Siła wzrosła o 3!'), nl,
+    write('Kupiono Monster.'), nl,
     write('Pozostało Ci '), write(NewMoney), write(' zł.'), nl.
 
 buy_item(przedtreningowka) :-
@@ -41,8 +49,7 @@ buy_item(przedtreningowka) :-
     NewMoney is M - Price,
     retract(money(M)),
     assert(money(NewMoney)),
-    increase_strength(10), % Zwiększamy siłę o 10
-    write('Kupiono przedtreningówkę. Siła wzrosła o 10!'), nl,
+    write('Kupiono przedtreningówkę.'), nl,
     write('Pozostało Ci '), write(NewMoney), write(' zł.'), nl.
 
 buy_item(_) :-
@@ -60,10 +67,10 @@ increase_strength(Value) :-
 i_am_at(dom).
 
 /* Ścieżki między lokacjami (dwustronne) */
-path(dom, ulica).
-path(ulica, dom).
-path(ulica, recepcja).
-path(recepcja, ulica).
+path(dom, parking).
+path(parking, dom).
+path(parking, recepcja).
+path(recepcja, parking).
 path(recepcja, szatnia_meska).
 path(szatnia_meska, recepcja).
 path(recepcja, szatnia_damska).
@@ -92,11 +99,18 @@ available_paths :-
 at(strój_sportowy, dom).
 at(woda, dom).
 at(karnet, dom).
+at(recepcjonistka, recepcja).
+at(podejrzany_typ, parking).
 at(hantle, strefa_wolnych_ciezarow).
 at(sztanga, strefa_wolnych_ciezarow).
 at(kettlebell, strefa_wolnych_ciezarow).
 
 /* Podnoszenie przedmiotów */
+
+take(X) :-
+        npc(X),
+        write('Nie możesz podnieść '), write(X), write('! To osoba!'), nl, !.
+
 take(X) :-
         holding(X),
         write('Masz już '), write(X), write('!'), nl, !.
@@ -129,6 +143,30 @@ inventory :-
     ;
         write('Twój ekwipunek jest pusty!'), nl).
 
+/* Spożywanie suplementów */
+consume(X) :-
+        holding(X),
+        retract(holding(X)),
+        write('Spożywasz '), write(X), write('.'), nl,
+        (X = monster -> increase_strength(3) 
+        ; X = przedtreningowka -> increase_strength(10) 
+        ; X = mala_strzykawka -> (random(1, 5, R), (R =:= 1 -> die ; increase_strength(30))) 
+        ; X = duza_strzykawka -> (random(1, 5, R), (R =:= 1 -> die ; increase_strength(60))) 
+        ; true),
+        (X = monster -> write('Twoja siła wzrosła o 3!') 
+        ; X = przedtreningowka -> write('Twoja siła wzrosła o 10!') 
+        ; X = mala_strzykawka -> write('Twoja siła wzrosła o 30!') 
+        ; X = duza_strzykawka -> write('Twoja siła wzrosła o 60!') 
+        ; true),
+        nl,
+        !.
+consume(_) :-
+        write('Nie masz tego przedmiotu!'), nl.
+consume(X) :-
+        holding(X),
+        write('Nie możesz tego spożyć!'), nl,
+        !.
+
 
 /* Ruch */
 go(Direction) :-
@@ -146,7 +184,7 @@ go(_) :-
 enter(szatnia_meska) :-
         holding(karnet),
         write('Wchodzisz do szatni męskiej!'), nl,
-        retract(i_am_at(ulica)),
+        retract(i_am_at(parking)),
         assert(i_am_at(szatnia_meska)),
         look.
 
@@ -156,6 +194,7 @@ enter(szatnia_damska) :-
 
 enter(_) :-
         write('Nie masz karnetu!'), nl.
+
 
 /* Trening */
 train(Partia) :-
@@ -203,7 +242,7 @@ look :-
 describe(dom) :-
         write('Jesteś w domu. Musisz zebrać ekwipunek na siłownię!'), nl.
 
-describe(ulica) :-
+describe(parking) :-
         write('Jesteś na ulicy. Możesz iść do siłowni!'), nl.
 
 describe(szatnia_meska) :-
@@ -227,6 +266,55 @@ notice_objects_at(Place) :-
         fail.
 notice_objects_at(_).
 
+/* Pomoc */
+instructions :-
+    i_am_at(Place),
+    write('Możesz wykonać następujące akcje:'), nl,
+    (Place = dom ->
+        write('- Zabrać przedmioty (take(X))'), nl,
+        write('- Sprawdzić ekwipunek (inventory)'), nl,
+        write('- Wyjść na parking (go(parking))'), nl
+        write('- Sprawdzić pieniądze (check_money)'), nl
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
+    ; Place = parking ->
+        write('- Porozmawiać z podejrzanym typem'), nl,
+        write('- Wejść do siłowni (go(recepcja))'), nl,
+        write('- Wrócić do domu (go(dom))'), nl
+        write('- Sprawdzić ekwipunek (inventory)'), nl,
+        write('- Sprawdzić pieniądze (check_money)'), nl
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
+    ; Place = recepcja ->
+        write('- Porozmawiać z recepcjonistką'), nl,
+        write('- Kupić przedmioty (buy_item(X))'), nl,
+        write('- Wejść do szatni (go(szatnia_meska) lub go(szatnia_damska))'), nl,
+        write('- Wyjść na parking (go(parking))'), nl
+        write('- Sprawdzić ekwipunek (inventory)'), nl,
+        write('- Sprawdzić pieniądze (check_money)'), nl
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
+
+    ; Place = szatnia_meska ->
+        write('- Udać się do strefy treningowej (go(strefa_wolnych_ciezarow), go(strefa_cardio))'), nl,
+        write('- Wrócić na recepcję (go(recepcja))'), nl
+        write('- Sprawdzić ekwipunek (inventory)'), nl,
+        write('- Sprawdzić pieniądze (check_money)'), nl
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
+
+    ; Place = strefa_wolnych_ciezarow ->
+        write('- Podnieść ciężary (take(X))'), nl,
+        write('- Trenować (train(Partia))'), nl,
+        write('- Wrócić do szatni (go(szatnia_meska))'), nl
+        write('- Sprawdzić ekwipunek (inventory)'), nl,
+        write('- Sprawdzić pieniądze (check_money)'), nl
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
+
+    ; Place = strefa_cardio ->
+        write('- Wrócić do szatni (go(szatnia_meska))'), nl
+        write('- Sprawdzić ekwipunek (inventory)'), nl,
+        write('- Sprawdzić pieniądze (check_money)'), nl
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
+    ), nl.
+
+
 /* Start gry */
 start :-
         write('Twoim celem jest odbycie treningu na siłowni.'), nl,
@@ -235,5 +323,7 @@ start :-
         look.
 
 /* Zakończenie gry */
-finish :-
-        write('Koniec gry. Wpisz "halt." aby wyjść.'), nl.
+finish(score) :-
+        (score =:= 1 -> write('Gratulacje! Wygrałeś!') ; write('Przegrałeś!')), nl,
+        write('Dziękujemy za grę!'), nl,
+        halt.
