@@ -128,13 +128,14 @@ increase_strength(Value) :-
         strength(S),
         NewStrength is S + Value,
         retract(strength(S)),
-        assert(strength(NewStrength)),
+        assert(strength(NewStrength)).
 
 /* Lokacje */
 
 /* Ścieżki między lokacjami (dwustronne) */
-path(dom, parking).
+
 path(parking, dom).
+path(dom, parking).
 path(parking, recepcja).
 path(recepcja, parking).
 path(recepcja, szatnia_meska).
@@ -381,3 +382,8 @@ finish(score) :-
         (score =:= 1 -> write('Gratulacje! Wygrałeś!') ; write('Przegrałeś!')), nl,
         write('Dziękujemy za grę!'), nl,
         halt.
+
+/* Debugging paths */
+debug_paths :-
+    findall((A, B), path(A, B), Paths),
+    write('Available paths: '), write(Paths), nl.
