@@ -264,13 +264,25 @@ consume(X) :-
         ; true),
         nl,
         !.
+
 consume(_) :-
         write('Nie masz tego przedmiotu!'), nl.
+
 consume(X) :-
         holding(X),
         write('Nie możesz tego spożyć!'), nl,
         !.
 
+komplementuj_recepcjonistke :-
+        i_am_at(recepcja),
+        write('Mówisz recepcjonistce, że ma piękny uśmiech.'), nl,
+        write('Recepcjonistka przewraca oczami ale mimo to jednak pozwala ci wejść.'), nl,
+        retract(i_am_at(recepcja)),
+        assert(i_am_at(szatnia_meska)),
+        look, !.
+
+komplementuj_recepcjonistke :-
+        write('Nie możesz tego tutaj zrobić!'), nl.
 
 /* Ruch */
 go(Direction) :-
@@ -283,7 +295,13 @@ go(Direction) :-
                 assert(i_am_at(Direction)),
                 look
             ;
-                write('Nie masz karnetu!'), nl
+                write('Nie masz karnetu! Może chcesz sprawdzić czy skomplementowanie recepcjonistki coś da? (tak/nie)'), nl,
+                read(Odpowiedz),
+                (Odpowiedz = tak ->
+                    komplementuj_recepcjonistke
+                ;
+                    write('Recepcjonistka patrzy na ciebie z dezaprobatą.'), nl
+                )
             )
         ; Direction = szatnia_damska ->
             (write('Podglądacze nie są tolerowani! Zostałeś wyrzucony z siłowni! Koniec gry.'), nl, finish)
@@ -371,10 +389,12 @@ left_add_weight_bench(X) :-
                 write('Nie można wykonać takiej akcji!'), nl
         ),
         !.
+
 left_add_weight_bench(_) :-
         i_am_at(Place),
         \+ Place = strefa_wolnych_ciezarow,
         write('Nie jesteś w strefie wolnych ciężarów!'), nl.
+
 left_add_weight_bench(X) :-
         i_am_at(strefa_wolnych_ciezarow),
         stage(CurrentStage),
@@ -386,6 +406,7 @@ left_add_weight_bench(X) :-
                 write('Nie można wykonać takiej akcji!'), nl
         ),
         !.
+
 right_add_weight_bench(X) :-
         i_am_at(strefa_wolnych_ciezarow),
         stage(CurrentStage),
@@ -405,10 +426,12 @@ right_add_weight_bench(X) :-
                 write('Nie można wykonać takiej akcji!'), nl
         ),
         !.
+
 right_add_weight_bench(_) :-
         i_am_at(Place),
         \+ Place = strefa_wolnych_ciezarow,
         write('Nie jesteś w strefie wolnych ciężarów!'), nl.
+
 right_add_weight_bench(X) :-
         i_am_at(strefa_wolnych_ciezarow),
         stage(CurrentStage),
@@ -658,6 +681,10 @@ start :-
         write('Zbierz potrzebny ekwipunek z domu, wejdź na siłownię i wykonaj ćwiczenia!'), nl,
         random_strength_and_money,
         look.
+
+finish :-
+        write('Koniec gry! Dziękujemy za udział.'), nl,
+        halt.
 
 /* Zakończenie gry */
 finish(score) :-
