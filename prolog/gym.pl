@@ -522,7 +522,7 @@ check_bench :-
                 ;
                         Diff is abs(WBL - WBR),
                         (   Diff > 70 ->
-                                write('Sztanga się przewaliła! Wszyscy patrzą na ciebie jak na jakiegoś ... . Ze wstydu szybko uciekłeś z siłowni'), nl,
+                                write('Sztanga się przewaliła! Wszyscy się teraz z ciebie śmieją. Ze wstydu szybko uciekłeś z siłowni'), nl,
                                 finish(0)
                         ;
                                 write('Obciążenie na sztandze jest nierówno rozłożone, ale w granicach bezpieczeństwa.'), nl,
