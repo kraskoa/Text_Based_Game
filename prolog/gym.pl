@@ -13,8 +13,7 @@ i_am_at(dom).
 random_strength_and_money :-
         random(50, 151, S),  % Siła w zakresie 50-150 kg
         % do testów
-        random(100, 151, M),
-        %random(0, 51, M), % Pieniądze w zakresie 0 - 50 zł
+        random(0, 151, M),
         assert(strength(S)),
         assert(money(M)),
         assert(lifted(klatka_piersiowa, 0)),
@@ -60,7 +59,7 @@ interact(recepcjonistka) :-
         write(' - karnet (buy(karnet)) za 40zł.'), nl.
 
 interact(podejrzany_typ) :-
-        write('Podejrzany typ:'), nl, 
+        write('Podejrzany typ:'), nl,
         write('Witaj, czyżbyś szedł na trening? Może chcesz coś mocniejszego, co na pewno poprawi twoje wyniki? Moje produkty są całkowicie bezpieczne!'), nl,
         write('Możesz tutaj kupić: '), nl,
         write(' - mala_strzykawka (buy(mala_strzykawka)) za 30zł'), nl,
@@ -110,10 +109,18 @@ check_money :-
         money(M),
         write('Masz '), write(M), write(' zł na koncie.'), nl.
 
+weight_inventory(Weights) :-
+        findall(Weight, holding_weight(Weight), Weights).
+
+holding_weight(Weight) :-
+        holding(X),
+        (X = 5 ; X = 10 ; X = 15 ; X = 20 ; X = 25 ; X = 30),
+        Weight = X.
+
 /* Zakup przedmiotów */
 buy(Item) :-
         i_am_at(Place),
-        at(Item, Place),
+        buy_at(Item, Place),
         item_price(Item, Price),
         money(M),
         (M >= Price ->
@@ -132,7 +139,7 @@ buy(Item) :-
 
 buy(Item) :-
         i_am_at(Place),
-        at(Item, Place),
+        buy_at(Item, Place),
         \+ item_price(Item, _),
         write('Ten przedmiot nie jest na sprzedaż!'), nl, !.
 
@@ -245,15 +252,15 @@ consume(X) :-
         holding(X),
         retract(holding(X)),
         write('Spożywasz '), write(X), write('.'), nl,
-        (X = monster -> increase_strength(3) 
-        ; X = przedtreningowka -> increase_strength(10) 
-        ; X = mala_strzykawka -> (random(1, 5, R), (R =:= 1 -> die ; increase_strength(30))) 
-        ; X = duza_strzykawka -> (random(1, 3, R), (R =:= 1 -> die ; increase_strength(60))) 
+        (X = monster -> increase_strength(3)
+        ; X = przedtreningowka -> increase_strength(10)
+        ; X = mala_strzykawka -> (random(1, 5, R), (R =:= 1 -> die ; increase_strength(30)))
+        ; X = duza_strzykawka -> (random(1, 3, R), (R =:= 1 -> die ; increase_strength(60)))
         ; true),
-        (X = monster -> write('Twoja siła wzrosła o 3!') 
-        ; X = przedtreningowka -> write('Twoja siła wzrosła o 10!') 
-        ; X = mala_strzykawka -> write('Twoja siła wzrosła o 30!') 
-        ; X = duza_strzykawka -> write('Twoja siła wzrosła o 60!') 
+        (X = monster -> write('Twoja siła wzrosła o 3!')
+        ; X = przedtreningowka -> write('Twoja siła wzrosła o 10!')
+        ; X = mala_strzykawka -> write('Twoja siła wzrosła o 30!')
+        ; X = duza_strzykawka -> write('Twoja siła wzrosła o 60!')
         ; true),
         nl,
         !.
@@ -290,7 +297,7 @@ go(_) :-
         write('Nie możesz tam pójść!'), nl.
 
 
-% /* Stary Trening 
+% /* Stary Trening
 % train(Partia) :-
 %         strength(S),
 %         holding(X),
@@ -308,14 +315,14 @@ go(_) :-
 %         write('Podniosłeś '), write(W), write(' kg na '), write(Partia), write('. Łącznie: '), write(NewL), write(' kg.'), nl,
 %         check_goal.
 
-% /* Cele gry 
+% /* Cele gry
 % check_goal :-
 %         lifted(klatka_piersiowa, P),
 %         lifted(barki, B),
 %         lifted(biceps, C),
 %         (P >= 500, B >= 300, C >= 200 -> write('Gratulacje! Ukończyłeś trening!'), nl, finish ; true).
 
-% /* Wagi sprzętu 
+% /* Wagi sprzętu
 % weight(sztanga, 100).
 % weight(hantle, 50).
 % weight(kettlebell, 30).
@@ -339,7 +346,7 @@ take_bench :-
         ),
         !.
 
-        
+
 take_bench :-
         i_am_at(Place),
         \+ Place = strefa_wolnych_ciezarow,
@@ -541,10 +548,10 @@ start_stage(X) :-
 
 
 
-                
 
-                    
-                
+
+
+
 
 
 
