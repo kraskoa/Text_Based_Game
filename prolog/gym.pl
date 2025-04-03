@@ -179,7 +179,6 @@ at(woda, dom).
 at(karnet, dom).
 at(recepcjonistka, recepcja).
 at(podejrzany_typ, parking).
-at(czlowiek_szczuply, strefa_wolnych_ciezarow).
 at(czerwony_bidon, łazienka).
 % at(hantle, strefa_wolnych_ciezarow).
 % at(sztanga, strefa_wolnych_ciezarow).
@@ -522,8 +521,8 @@ start_stage(X) :-
                 write('Powodzenia!'), nl
         );
         X =:= 2 -> (
-                npc(czlowiek_szczuply),
-                at(czlowiek_szczuply, strefa_wolnych_ciezarow),
+                assert(npc(czlowiek_szczuply)),
+                assert(at(czlowiek_szczuply, strefa_wolnych_ciezarow)),
                 write('Gratulacje udało ci się wykonać pierwszą serię!'), nl,
                 write('Kiedy opoczywasz po pierwszej serii, podchodzi do ciebie czlowiek_szczuply i z pytaniem:'), nl,
                 write(' - Hej, ile zostało ci serii?'), nl,
