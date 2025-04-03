@@ -165,6 +165,8 @@ path(parking, recepcja).
 path(recepcja, parking).
 path(recepcja, szatnia_meska).
 path(szatnia_meska, recepcja).
+path(szatnia_meska, nieczynny_prysznic).
+path(nieczynny_prysznic, szatnia_meska).
 path(recepcja, szatnia_damska).
 path(szatnia_damska, recepcja).
 path(szatnia_meska, strefa_wolnych_ciezarow).
@@ -305,14 +307,43 @@ go(Direction) :-
             )
         ; Direction = szatnia_damska ->
             (write('Podglądacze nie są tolerowani! Zostałeś wyrzucony z siłowni! Koniec gry.'), nl, finish)
+        ; Direction = nieczynny_prysznic ->
+            idz_do_prysznica
         ;
             retract(i_am_at(Here)),
             assert(i_am_at(Direction)),
             look
         ), !.
 
+
 go(_) :-
         write('Nie możesz tam pójść!'), nl.
+
+
+/* Idź do nieczynnego prysznica */
+idz_do_prysznica :-
+        i_am_at(szatnia_meska),
+        prysznic_sprawdzony,
+        write('Prysznic jest już pusty. Nie ma tam nic więcej.'), nl, !.
+
+idz_do_prysznica :-
+        i_am_at(szatnia_meska),
+        write('Podchodzisz do nieczynnego prysznica...'), nl,
+        write('Nagle znajdujesz tam specjalnego monstera!'), nl,
+        assert(holding(specjalny_monster)),
+        increase_strength(10),
+        write('Wypijasz monstera i czujesz przypływ siły!'), nl,
+        write('Automatycznie wracasz do szatni.'), nl,
+        retract(i_am_at(_)),
+        assert(i_am_at(szatnia_meska)),
+        assert(prysznic_sprawdzony), % Dodajemy fakt, że prysznic został użyty
+        look, !.
+
+idz_do_prysznica :-
+        write('Nie możesz tego tutaj zrobić!'), nl.
+
+/* Deklaracja dynamicznego faktu */
+:- dynamic prysznic_sprawdzony/0.
 
 
 % /* Stary Trening
@@ -603,7 +634,8 @@ describe(recepcja) :-
         write('Jesteś w recepcji. Możesz kupić suplementy i karnet!'), nl.
 
 describe(szatnia_meska) :-
-        write('Jesteś w męskiej szatni. Możesz udać się do stref treningowych!'), nl.
+        write('Jesteś w męskiej szatni. Możesz udać się do stref treningowych!'), nl,
+        write('Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku?'), nl.
 
 describe(szatnia_damska) :-
         write('Jesteś w damskiej szatni. Możesz udać się do stref treningowych!'), nl.
@@ -655,6 +687,7 @@ instructions :-
     ; Place = szatnia_meska ->
         write('- Udać się do strefy treningowej (go(strefa_wolnych_ciezarow), go(strefa_cardio))'), nl,
         write('- Wrócić na recepcję (go(recepcja))'), nl,
+        write('- Sprawdzić nieczynny prysznic (go(nieczynny_prysznic))'), nl,
         write('- Sprawdzić ekwipunek (inventory)'), nl,
         write('- Sprawdzić pieniądze (check_money)'), nl,
         write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
