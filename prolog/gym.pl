@@ -503,47 +503,41 @@ do_bench_press :-
         ),
         !.
 
-do_bench_press :-
-        stage(CurrentStage),
-        (CurrentStage > 1 ->
-            write('Nie możesz wykonać tego ćwiczenia ponownie!'), nl
-        ;
-            true
-        ).
-
 
 % STAGES
 
-start_stage(1) :-
-        assert(at(szur_bojowy, strefa_wolnych_ciezarow)),
-        assert(at(brunetka, strefa_maszyn)),
-        assert(at(duzy_chlop, strefa_wolnych_ciezarow)),
-        assert(npc(szur_bojowy)),
-        assert(npc(brunetka)),
-        assert(npc(duzy_chlop)),
-        write('Rozpoczynasz trening na klatę! Rozgladasz się obok sztangi, ale nie ma obok niej żadnych ciężarów.'), nl,
-        write('Pora zebrać cięzary!'), nl,
-        write('Rozejrzyj się po siłowni i przynieś ciężary, a następnie je nałóż!'), nl,
-        write('Pamiętaj, że z dwóch stron trzeba mieć tyle samo na sztandze!'), nl,
-        write('Im więcej podniesiesz, tym lepszy wynik zdobędziesz!'), nl,
-        write('Powodzenia!'), nl.
-        
-start_stage(2) :-
-        npc(czlowiek_szczuply),
-        at(czlowiek_szczuply, strefa_wolnych_ciezarow),
-        write('Gratulacje udało ci się wykonać pierwszą serię!'), nl,
-        write('Kiedy opoczywasz po pierwszej serii, podchodzi do ciebie czlowiek_szczuply i z pytaniem:'), nl,
-        write(' - Hej, ile zostało ci serii?'), nl,
-        write(' - Jeszcze dwie.'), nl,
-        write(' - Mogę w takim razie się dołączyć?'), nl,
-        write(' - Jasne'), nl,
-        write(' - Tak w ogóle nie widziałeś przypadkiem gdzieś na siłowni czerwonego bidonu, musiałem go wczoraj zostawić w szatni. Znalazcy z pewnością się odwdzięczę'), nl,
-        (holding(czerwony_bidon) ->
-            write('Przypominasz sobie, że podniosłeś taki bidon w łazience'), nl,
-            write('Możesz teraz go oddać (give(czerwony_bidon, czlowiek_szczuply))'), nl
-        ;
-            write(' - Niestety, nie widziałem go. Ale i tak teraz odpoczywam pójdę go poszukać (Powiedziałeś już myśląc o tym jaka nagroda cię czeka)'), nl,
-            write(' - Powodzenia!'), nl
+start_stage(X) :-
+        X =:= 1 -> (
+                assert(at(szur_bojowy, strefa_wolnych_ciezarow)),
+                assert(at(brunetka, strefa_maszyn)),
+                assert(at(duzy_chlop, strefa_wolnych_ciezarow)),
+                assert(npc(szur_bojowy)),
+                assert(npc(brunetka)),
+                assert(npc(duzy_chlop)),
+                write('Rozpoczynasz trening na klatę! Rozgladasz się obok sztangi, ale nie ma obok niej żadnych ciężarów.'), nl,
+                write('Pora zebrać cięzary!'), nl,
+                write('Rozejrzyj się po siłowni i przynieś ciężary, a następnie je nałóż!'), nl,
+                write('Pamiętaj, że z dwóch stron trzeba mieć tyle samo na sztandze!'), nl,
+                write('Im więcej podniesiesz, tym lepszy wynik zdobędziesz!'), nl,
+                write('Powodzenia!'), nl
+        );
+        X =:= 2 -> (
+                npc(czlowiek_szczuply),
+                at(czlowiek_szczuply, strefa_wolnych_ciezarow),
+                write('Gratulacje udało ci się wykonać pierwszą serię!'), nl,
+                write('Kiedy opoczywasz po pierwszej serii, podchodzi do ciebie czlowiek_szczuply i z pytaniem:'), nl,
+                write(' - Hej, ile zostało ci serii?'), nl,
+                write(' - Jeszcze dwie.'), nl,
+                write(' - Mogę w takim razie się dołączyć?'), nl,
+                write(' - Jasne'), nl,
+                write(' - Tak w ogóle nie widziałeś przypadkiem gdzieś na siłowni czerwonego bidonu, musiałem go wczoraj zostawić w szatni. Znalazcy z pewnością się odwdzięczę'), nl,
+                (holding(czerwony_bidon) ->
+                    write('Przypominasz sobie, że podniosłeś taki bidon w łazience'), nl,
+                    write('Możesz teraz go oddać (give(czerwony_bidon, czlowiek_szczuply))'), nl
+                ;
+                    write(' - Niestety, nie widziałem go. Ale i tak teraz odpoczywam pójdę go poszukać (Powiedziałeś już myśląc o tym jaka nagroda cię czeka)'), nl,
+                    write(' - Powodzenia!'), nl
+                )
         ), !.
 
 
