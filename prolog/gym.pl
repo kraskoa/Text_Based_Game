@@ -179,16 +179,16 @@ path(szatnia_damska, strefa_wolnych_ciezarow).
 path(strefa_wolnych_ciezarow, szatnia_damska).
 path(szatnia_damska, strefa_cardio).
 path(strefa_cardio, szatnia_damska).
-path(szatnia_meska, łazienka).
-path(łazienka, szatnia_meska).
+path(szatnia_meska, lazienka).
+path(lazienka, szatnia_meska).
 
 /* Przedmioty */
-at(strój_sportowy, dom).
+at(stroj_sportowy, dom).
 at(woda, dom).
 at(karnet, dom).
 at(recepcjonistka, recepcja).
 at(podejrzany_typ, parking).
-at(czerwony_bidon, łazienka).
+at(czerwony_bidon, lazienka).
 % at(hantle, strefa_wolnych_ciezarow).
 % at(sztanga, strefa_wolnych_ciezarow).
 % at(kettlebell, strefa_wolnych_ciezarow).
@@ -255,9 +255,10 @@ consume(X) :-
         retract(holding(X)),
         write('Spożywasz '), write(X), write('.'), nl,
         (X = monster -> increase_strength(3)
+        ; X = dzik -> increase_strength(5)
         ; X = przedtreningowka -> increase_strength(10)
-        ; X = mala_strzykawka -> (random(1, 5, R), (R =:= 1 -> die ; increase_strength(30)))
-        ; X = duza_strzykawka -> (random(1, 3, R), (R =:= 1 -> die ; increase_strength(60)))
+        ; X = mala_strzykawka -> (random(1, 5, R), (R =:= 1 -> die_steroid ; increase_strength(30)))
+        ; X = duza_strzykawka -> (random(1, 3, R), (R =:= 1 -> die_steroid ; increase_strength(60)))
         ; true),
         (X = monster -> write('Twoja siła wzrosła o 3!')
         ; X = przedtreningowka -> write('Twoja siła wzrosła o 10!')
@@ -286,34 +287,64 @@ komplementuj_recepcjonistke :-
 komplementuj_recepcjonistke :-
         write('Nie możesz tego tutaj zrobić!'), nl.
 
+/* Przebieranie się */
+:- dynamic wearing/1.
+
+wear(stroj_sportowy) :-
+        i_am_at(szatnia_meska),
+        holding(stroj_sportowy),
+        retract(holding(stroj_sportowy)),
+        assert(wearing(stroj_sportowy)),
+        write('Przebrałeś się w strój sportowy!'), nl, !.
+
+wear(_) :-
+        write('Nie masz stroju sportowego!'), nl, !.
+
 /* Ruch */
+:- dynamic szatnia_wejscie/0.
+
 go(Direction) :-
-        i_am_at(Here),
-        path(Here, Direction),
-        (Direction = szatnia_meska ->
-            (holding(karnet) ->
-                write('Wchodzisz do szatni męskiej!'), nl,
-                retract(i_am_at(Here)),
-                assert(i_am_at(Direction)),
-                look
-            ;
-                write('Nie masz karnetu! Może chcesz sprawdzić czy skomplementowanie recepcjonistki coś da? (tak/nie)'), nl,
-                read(Odpowiedz),
-                (Odpowiedz = tak ->
-                    komplementuj_recepcjonistke
-                ;
-                    write('Recepcjonistka patrzy na ciebie z dezaprobatą.'), nl
-                )
-            )
-        ; Direction = szatnia_damska ->
-            (write('Podglądacze nie są tolerowani! Zostałeś wyrzucony z siłowni! Koniec gry.'), nl, finish)
-        ; Direction = nieczynny_prysznic ->
-            idz_do_prysznica
-        ;
+    i_am_at(Here),
+    path(Here, Direction),
+    (Direction = szatnia_meska ->
+        (szatnia_wejscie ->
+            write('Wchodzisz do szatni męskiej!'), nl,
             retract(i_am_at(Here)),
             assert(i_am_at(Direction)),
             look
-        ), !.
+        ; holding(karnet) ->
+            write('Wchodzisz do szatni męskiej!'), nl,
+            retract(i_am_at(Here)),
+            assert(i_am_at(Direction)),
+            assert(szatnia_wejscie),
+            look
+        ;
+            write('Nie masz karnetu! Może chcesz sprawdzić czy skomplementowanie recepcjonistki coś da? (tak/nie)'), nl,
+            read(Odpowiedz),
+            (Odpowiedz = tak ->
+                komplementuj_recepcjonistke,
+                assert(szatnia_wejscie)
+            ;
+                write('Recepcjonistka patrzy na ciebie z dezaprobatą.'), nl
+            )
+        )
+    ; Direction = szatnia_damska ->
+        (write('Podglądacze nie są tolerowani! Zostałeś wyrzucony z siłowni! Koniec gry.'), nl, finish)
+    ; Direction = nieczynny_prysznic ->
+        idz_do_prysznica
+    ; member(Direction, [strefa_wolnych_ciezarow, strefa_cardio]) ->
+        (wearing(stroj_sportowy) ->
+            retract(i_am_at(Here)),
+            assert(i_am_at(Direction)),
+            look
+        ;
+            write('Nie możesz iść na trening bez stroju sportowego! Przebierz się!'), nl
+        )
+    ;
+        retract(i_am_at(Here)),
+        assert(i_am_at(Direction)),
+        look
+    ), !.
 
 
 go(_) :-
@@ -329,14 +360,14 @@ idz_do_prysznica :-
 idz_do_prysznica :-
         i_am_at(szatnia_meska),
         write('Podchodzisz do nieczynnego prysznica...'), nl,
-        write('Nagle znajdujesz tam specjalnego monstera!'), nl,
-        assert(holding(specjalny_monster)),
-        increase_strength(10),
-        write('Wypijasz monstera i czujesz przypływ siły!'), nl,
+        write('Nagle znajdujesz tam darmowego Dzika (napój energetyczny)!'), nl,
+        assert(holding(dzik)),
+        % increase_strength(10),
+        write('Wypij monstera i poczuj przypływ siły!'), nl,
         write('Automatycznie wracasz do szatni.'), nl,
         retract(i_am_at(_)),
         assert(i_am_at(szatnia_meska)),
-        assert(prysznic_sprawdzony), % Dodajemy fakt, że prysznic został użyty
+        assert(prysznic_sprawdzony),
         look, !.
 
 idz_do_prysznica :-
@@ -568,10 +599,10 @@ do_bench_press :-
 
 start_stage(X) :-
         X =:= 1 -> (
-                assert(at(szur_bojowy, strefa_wolnych_ciezarow)),
+                assert(at(szczur_bojowy, strefa_wolnych_ciezarow)),
                 assert(at(brunetka, strefa_maszyn)),
                 assert(at(duzy_chlop, strefa_wolnych_ciezarow)),
-                assert(npc(szur_bojowy)),
+                assert(npc(szczur_bojowy)),
                 assert(npc(brunetka)),
                 assert(npc(duzy_chlop)),
                 write('Rozpoczynasz trening na klatę! Rozgladasz się obok sztangi, ale nie ma obok niej żadnych ciężarów.'), nl,
@@ -598,22 +629,22 @@ start_stage(X) :-
                     write(' - Niestety, nie widziałem go. Ale i tak teraz odpoczywam pójdę go poszukać (Powiedziałeś już myśląc o tym jaka nagroda cię czeka)'), nl,
                     write(' - Powodzenia!'), nl
                 )
-        ), !.
-
-
-
-
-
-
-
-
-
-
+        );
+        X =:= 3 -> (
+                write('Gratulacje udało ci się wykonać drugą serię!'), nl,
+                write('Wiesz jednak, że bez magnezji nie uda ci się wykonać kolejnej serii.'), nl,
+                write('Musisz znaleźć magnezję!'), nl,
+                write("Może ktoś na siłowni ci pomoże?"), nl
+        ).
 
 
 /* Śmierć */
 die :-
         write('Podjąłeś próbę podniesienia zbyt dużego ciężaru i odniosłeś kontuzję. Koniec gry.'), nl,
+        finish(0).
+
+die_steroid :-
+        write('To był twój ostatni trening. Zmarłeś na skutek przedawkowania sterydów.'), nl,
         finish(0).
 
 /* Wyświetlanie otoczenia */
@@ -628,7 +659,7 @@ describe(dom) :-
         write('Jesteś w domu. Musisz zebrać ekwipunek na siłownię!'), nl.
 
 describe(parking) :-
-        write('Jesteś na ulicy. Możesz iść do siłowni!'), nl.
+        write('Jesteś na parkingu przed siłownią. Możesz iść do siłowni!'), nl.
 
 describe(recepcja) :-
         write('Jesteś w recepcji. Możesz kupić suplementy i karnet!'), nl.
@@ -649,7 +680,7 @@ describe(strefa_wolnych_ciezarow) :-
 describe(strefa_cardio) :-
         write('Jesteś w strefie cardio.'), nl.
 
-describe(łazienka) :-
+describe(lazienka) :-
         write('Jesteś w łazience.'), nl.
 
 notice_objects_at(Place) :-
@@ -669,14 +700,14 @@ instructions :-
         write('- Sprawdzić pieniądze (check_money)'), nl,
         write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
     ; Place = parking ->
-        write('- Porozmawiać z podejrzanym typem'), nl,
+        write('- Porozmawiać z podejrzanym typem (talk(podejrzany_typ))'), nl,
         write('- Wejść do siłowni (go(recepcja))'), nl,
         write('- Wrócić do domu (go(dom))'), nl,
         write('- Sprawdzić ekwipunek (inventory)'), nl,
         write('- Sprawdzić pieniądze (check_money)'), nl,
         write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
     ; Place = recepcja ->
-        write('- Porozmawiać z recepcjonistką'), nl,
+        write('- Porozmawiać z recepcjonistką (talk(recepcjonistka))'), nl,
         write('- Kupić przedmioty (buy(X))'), nl,
         write('- Wejść do szatni (go(szatnia_meska) lub go(szatnia_damska))'), nl,
         write('- Wyjść na parking przed siłownię (go(parking))'), nl,
