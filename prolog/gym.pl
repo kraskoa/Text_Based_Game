@@ -680,6 +680,8 @@ start_stage(X) :-
 
 talk(X) :-
         i_am_at(strefa_wolnych_ciezarow),
+        assert(npc(swiezak)),
+        assert(at(swiezak, strefa_wolnych_ciezarow)),
         X = swiezak,
         (holding(czerwony_bidon) ->
         write('Ty: Cześć, stary, znalazłem twój czerwony bidon w łazience.'), nl,
