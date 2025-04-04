@@ -392,8 +392,23 @@ go(Direction) :-
                 write('Recepcjonistka patrzy na ciebie z dezaprobatą.'), nl
             )
         )
-    ; Direction = szatnia_damska ->
-        (write('Podglądacze nie są tolerowani! Zostałeś wyrzucony z siłowni! Koniec gry.'), nl, finish)
+        ; Direction = szatnia_damska ->
+                (write('Podglądacze nie są tolerowani! Zostałeś wyrzucony z siłowni! Koniec gry.'), nl, finish)
+        ; Direction = strefa_cardio ->
+                stage(CurrentStage),
+                (CurrentStage =:= 4 ->
+                        retract(stage(CurrentStage)),
+                        assert(stage(5)),
+                        write('Przechodzisz do strefy cardio. Zapatrujesz się na ćwiczące się osoby.'), nl,
+                        write('Nawet nie zauważasz kiedy mija czas na kolejną serię!'), nl,
+                        retract(i_am_at(Here)),
+                        assert(i_am_at(Direction)),
+                        look
+                ;
+                        retract(i_am_at(Here)),
+                        assert(i_am_at(Direction)),
+                        look
+                )
     ; Direction = nieczynny_prysznic ->
         idz_do_prysznica
     ; member(Direction, [strefa_wolnych_ciezarow, strefa_cardio, strefa_maszyn]) ->
