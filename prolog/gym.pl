@@ -2,16 +2,15 @@
 
 :- dynamic i_am_at/1, at/2, holding/1, strength/1, lifted/2, money/1, stage/1, score/1, weight_inventory/1, bench_left/1, bench_right/1, npc/1.
 :- retractall(at(_, _)), retractall(i_am_at(_)), retractall(holding(_)), retractall(strength(_)), retractall(lifted(_, _)), retractall(weight_inventory(_)), retractall(bench_left(_)), retractall(bench_right(_)).
-
-
-
+:- discontiguous talk/1.
+:- assert(weight_inventory(_{})).
 
 /* Początkowa lokalizacja */
 i_am_at(dom).
 
 /* Początkowa siła, podniesione ciężary oraz pieniądze */
 random_strength_and_money :-
-        random(50, 151, S),  % Siła w zakresie 50-150 kg
+        random(50, 101, S),  % Siła w zakresie 50-150 kg
         % do testów
         random(0, 151, M),
         assert(strength(S)),
@@ -21,13 +20,76 @@ random_strength_and_money :-
         assert(lifted(biceps, 0)),
         assert(stage(0)),
         assert(score(0)),
-        assert(weight_inventory([])),
+        assert(weight_inventory(_{})),
         assert(bench_left([])),
         assert(bench_right([])).
+
+
+/* Dodawanie ciężarów do ekwipunku */
+add_weights(WeightsToAdd) :-
+    retract(weight_inventory(CurrentWeights)),
+    update_weights(CurrentWeights, WeightsToAdd, NewWeights),
+    assert(weight_inventory(NewWeights)).
+
+update_weights(CurrentWeights, [], CurrentWeights).
+update_weights(CurrentWeights, [Weight | Rest], NewWeights) :-
+    (get_dict(Weight, CurrentWeights, Count) ->
+        NewCount is Count + 1,
+        put_dict(Weight, CurrentWeights, NewCount, TempWeights)
+    ;
+        put_dict(Weight, CurrentWeights, 1, TempWeights)
+    ),
+    update_weights(TempWeights, Rest, NewWeights).
+
+/* Usuwanie ciężarów z ekwipunku */
+remove_weights(WeightsToRemove) :-
+    retract(weight_inventory(CurrentWeights)),
+    subtract_weights(CurrentWeights, WeightsToRemove, NewWeights),
+    assert(weight_inventory(NewWeights)).
+
+subtract_weights(CurrentWeights, [], CurrentWeights).
+subtract_weights(CurrentWeights, [Weight | Rest], NewWeights) :-
+    (get_dict(Weight, CurrentWeights, Count) ->
+        (Count = 1 ->
+            del_dict(Weight, CurrentWeights, TempWeights)
+        ;
+            NewCount is Count - 1,
+            put_dict(Weight, CurrentWeights, NewCount, TempWeights)
+        )
+    ;
+        TempWeights = CurrentWeights
+    ),
+    subtract_weights(TempWeights, Rest, NewWeights).
+
+/* Wyświetlanie ekwipunku ciężarów */
+show_weight_inventory :-
+    weight_inventory(Weights),
+    (Weights = _{} ->
+        write('Ekwipunek ciężarów jest pusty.'), nl
+    ;
+        write('Ciężary w twoim ekwipunku: '), nl,
+        show_weights(Weights)
+    ).
+
+show_weights(Weights) :-
+    dict_pairs(Weights, _, Pairs),
+    show_pairs(Pairs).
+
+show_pairs([]).
+show_pairs([Weight-Count | Rest]) :-
+    write(Count), write('x '), write(Weight), write('kg'), nl,
+    show_pairs(Rest).
+
 
 /* Postacie poboczne */
 npc(recepcjonistka).
 npc(podejrzany_typ).
+npc(szczur_bojowy).
+npc(brunetka).
+npc(duzy_chlop).
+npc(wielki_chlop).
+npc(czlowiek_szczuply).
+npc(chudy_szczur).
 
 /* Przedmioty do kupienia na recepcji */
 item_price(monster, 10).
@@ -65,42 +127,45 @@ interact(podejrzany_typ) :-
         write(' - mala_strzykawka (buy(mala_strzykawka)) za 30zł'), nl,
         write(' - duza_strzykawka (buy(duza_strzykawka)) za 50zł.'), nl.
 
-interact(szur_bojowy) :-
-        write('Podchodzisz i się pytasz:'), nl,
-        write('Mogę zabrać 15 kg i 5 kg?'), nl,
-        write('Szur bojowy:'), nl,
-        write('XD, nie ma sprawy!'), nl,
-        weight_inventory(WI),
-        append(WI, [15, 5], NewWI),
-        retract(weight_inventory(WI)),
-        assert(weight_inventory(NewWI)),
-        write('Dodałeś do swojego ekwipunku ciężary: 15 kg i 5 kg.'), nl.
+interact(chudy_szczur) :-
+    write('Ty: Ej, mały, potrzebuję tych talerzy 5kg, mogę je zabrać?'), nl,
+    write('Chudy szczur: (piszczy nerwowo) Tylko... nie bij mnie! Bierz, co chcesz, i znikaj!'), nl,
+    write('Ty: Spoko, luz. Tylko mi je podaj, i będę się zwijał.'), nl,
+    write('Chudy szczur: (podaje talerze) Masz, i już mnie nie zaczepiaj!'), nl,
+    add_weights([5, 5]),
+    write('Dodałeś do swojego ekwipunku ciężary: 5 kg i 5 kg.'), nl.
 
 interact(brunetka) :-
-        write('Podchodzisz i się pytasz:'), nl,
-        write('Mogę zabrać 10 kg i 20 kg?'), nl,
-        write('Brunetka:'), nl,
-        write('XD, nie ma sprawy!'), nl,
-        weight_inventory(WI),
-        append(WI, [10, 20], NewWI),
-        retract(weight_inventory(WI)),
-        assert(weight_inventory(NewWI)),
-        write('Dodałeś do swojego ekwipunku ciężary: 10 kg i 20 kg.'), nl.
-
-interact(duzy_chlop) :-
-        write('Podchodzisz i się pytasz:'), nl,
-        write('Mogę zabrać 25 kg i 30 kg?'), nl,
-        write('Duży chłop:'), nl,
-        write('XD, nie ma sprawy!'), nl,
-        weight_inventory(WI),
-        append(WI, [25, 30], NewWI),
-        retract(weight_inventory(WI)),
-        assert(weight_inventory(NewWI)),
-        write('Dodałeś do swojego ekwipunku ciężary: 25 kg i 30 kg.'), nl.
+    write('Ty: Cześć, przepraszam cię najmocniej, że przeszkadzam, ale czy będziesz jeszcze używać tych 10kg?'), nl,
+    write('Brunetka: Zostaw mnie, mam chłopaka!'), nl,
+    write('Ty: Źle zrozumiałaś, ja tylko chciałem...'), nl,
+    write('Brunetka: Mam wezwać ochronę? Spadaj!'), nl.
 
 interact(czlowiek_szczuply) :-
-        write('Nic jeszcze nie napisane'), nl.
+    write('Ty: Stary, te talerze 15kg... mogę je pożyczyć? Na chwilę?'), nl,
+    write('Człowiek szczupły: (wzrusza ramionami) No dobra, ale szybko oddaję. Ja tu jeszcze muszę poćwiczyć.'), nl,
+    write('Ty: Jasne, jasne, tylko je wezmę. Dzięki!'), nl,
+    write('Człowiek szczupły: Tylko ich nie zgub, bo będziesz miał ze mną do czynienia!'), nl,
+    add_weights([15, 15]),
+    write('Dodałeś do swojego ekwipunku ciężary: 15 kg i 15 kg.'), nl.
 
+interact(szczur_bojowy) :-
+    write('Ty: Ej, byczku, te 20 kilo... mogę je zabrać?'), nl,
+    write('Szczur bojowy: Jasne, stary, bierz. I tak mi się już nie przydadzą.'), nl,
+    write('Ty: Dzięki, jesteś wielki!'), nl,
+    write('Szczur bojowy: Tylko uważaj, żebyś sobie krzywdy nie zrobił. To ciężkie żelastwo.'), nl,
+    add_weights([20, 20]),
+    write('Dodałeś do swojego ekwipunku ciężary: 20 kg i 20 kg.'), nl.
+
+interact(duzy_chlop) :-
+    write('Ty: Mogę zabrać talerze 25 kg?'), nl,
+    write('Duży chłop: Spoko, nie ma sprawy, już ich nie używam!'), nl,
+    add_weights([25, 25]),
+    write('Dodałeś do swojego ekwipunku ciężary: 25 kg i 25 kg.'), nl.
+
+interact(wielki_chlop) :-
+    write('Ty: Mogę zabrać talerze...'), nl,
+    write('Wielki chłop: Spadaj szczurze!'), nl.
 
 
 
@@ -108,14 +173,6 @@ interact(czlowiek_szczuply) :-
 check_money :-
         money(M),
         write('Masz '), write(M), write(' zł na koncie.'), nl.
-
-weight_inventory(Weights) :-
-        findall(Weight, holding_weight(Weight), Weights).
-
-holding_weight(Weight) :-
-        holding(X),
-        (X = 5 ; X = 10 ; X = 15 ; X = 20 ; X = 25 ; X = 30),
-        Weight = X.
 
 /* Zakup przedmiotów */
 buy(Item) :-
@@ -172,8 +229,12 @@ path(szatnia_damska, recepcja).
 path(szatnia_meska, strefa_wolnych_ciezarow).
 path(strefa_wolnych_ciezarow, szatnia_meska).
 path(szatnia_meska, strefa_cardio).
+path(szatnia_meska, strefa_maszyn).
 path(strefa_cardio, szatnia_meska).
+path(strefa_maszyn, szatnia_meska).
 path(szatnia_damska, strefa_maszyn).
+path(szatnia_damska, strefa_cardio).
+path(strefa_cardio, strefa_maszyn).
 path(strefa_maszyn, szatnia_damska).
 path(szatnia_damska, strefa_wolnych_ciezarow).
 path(strefa_wolnych_ciezarow, szatnia_damska).
@@ -189,9 +250,14 @@ at(karnet, dom).
 at(recepcjonistka, recepcja).
 at(podejrzany_typ, parking).
 at(czerwony_bidon, lazienka).
-% at(hantle, strefa_wolnych_ciezarow).
-% at(sztanga, strefa_wolnych_ciezarow).
-% at(kettlebell, strefa_wolnych_ciezarow).
+at(chudy_szczur, strefa_wolnych_ciezarow).
+at(brunetka, strefa_cardio).
+at(wielki_chlop, strefa_wolnych_ciezarow).
+at(czlowiek_szczuply, strefa_maszyn).
+at(duzy_chlop, strefa_maszyn).
+at(szczur_bojowy, strefa_maszyn).
+at(lawka, strefa_wolnych_ciezarow).
+at(talerze_10_kg, strefa_cardio).
 
 /* Przedmioty do kupienia */
 buy_at(monster, recepcja).
@@ -238,16 +304,19 @@ drop(_) :-
         write('Nie masz tego przedmiotu!'), nl.
 
 inventory :-
-        findall(Item, holding(Item), Items),
-        weight_inventory(Weights),
-        (Items \= [] ->
-                write('Twój ekwipunek: '), write(Items), nl
-        ;
-                write('Twój ekwipunek jest pusty!'), nl),
-        (Weights \= [] ->
-                write('Ciężary w twoim ekwipunku: '), write(Weights), nl
-        ;
-                write('Nie masz żadnych ciężarów w ekwipunku!'), nl).
+    findall(Item, holding(Item), Items),
+    weight_inventory(Weights),
+    (Items \= [] ->
+        write('Twój ekwipunek: '), write(Items), nl
+    ;
+        write('Twój ekwipunek jest pusty!'), nl
+    ),
+    (Weights \= {} ->
+        write('Ciężary w twoim ekwipunku: '), nl,
+        show_weights(Weights)
+    ;
+        write('Nie masz żadnych ciężarów w ekwipunku!'), nl
+    ).
 
 /* Spożywanie suplementów */
 consume(X) :-
@@ -261,6 +330,7 @@ consume(X) :-
         ; X = duza_strzykawka -> (random(1, 3, R), (R =:= 1 -> die_steroid ; increase_strength(60)))
         ; true),
         (X = monster -> write('Twoja siła wzrosła o 3!')
+        ; X = dzik -> write('Twoja siła wzrosła o 5!')
         ; X = przedtreningowka -> write('Twoja siła wzrosła o 10!')
         ; X = mala_strzykawka -> write('Twoja siła wzrosła o 30!')
         ; X = duza_strzykawka -> write('Twoja siła wzrosła o 60!')
@@ -332,7 +402,7 @@ go(Direction) :-
         (write('Podglądacze nie są tolerowani! Zostałeś wyrzucony z siłowni! Koniec gry.'), nl, finish)
     ; Direction = nieczynny_prysznic ->
         idz_do_prysznica
-    ; member(Direction, [strefa_wolnych_ciezarow, strefa_cardio]) ->
+    ; member(Direction, [strefa_wolnych_ciezarow, strefa_cardio, strefa_maszyn]) ->
         (wearing(stroj_sportowy) ->
             retract(i_am_at(Here)),
             assert(i_am_at(Direction)),
@@ -363,7 +433,7 @@ idz_do_prysznica :-
         write('Nagle znajdujesz tam darmowego Dzika (napój energetyczny)!'), nl,
         assert(holding(dzik)),
         % increase_strength(10),
-        write('Wypij monstera i poczuj przypływ siły!'), nl,
+        write('Wypij zdobyty napój i poczuj przypływ siły!'), nl,
         write('Automatycznie wracasz do szatni.'), nl,
         retract(i_am_at(_)),
         assert(i_am_at(szatnia_meska)),
@@ -409,214 +479,162 @@ idz_do_prysznica :-
 % */
 
 /* Nowy Trening */
-take_bench :-
-        i_am_at(strefa_wolnych_ciezarow),
-        stage(CurrentStage),
-        write('Current stage: '), write(CurrentStage), nl,
-        (CurrentStage =:= 0 ->
-            retract(stage(CurrentStage)),
-            assert(stage(1)),
-            start_stage(1)
-        ;
-        (member(CurrentStage, [1, 3, 5]) ->
-                write('Wykonujesz to ćwiczenie teraz!'), nl
-        ;
-                write('Nie można wykonać takiej akcji!'), nl
-        )
-        ),
-        !.
 
-
-take_bench :-
-        i_am_at(Place),
-        \+ Place = strefa_wolnych_ciezarow,
-        write('Nie jesteś w strefie wolnych ciężarów!'), nl.
-
+/* Używanie nowego systemu ciężarów */
 left_add_weight_bench(X) :-
-        i_am_at(strefa_wolnych_ciezarow),
-        stage(CurrentStage),
-        (member(CurrentStage, [1, 3, 5]) ->
-                weight_inventory(WI),
-                member(X, WI),
-                select(X, WI, NewWI),
-                retract(weight_inventory(WI)),
-                assert(weight_inventory(NewWI)),
-                bench_left(BL),
-                append(BL, [X], NewBL),
-                retract(bench_left(BL)),
-                assert(bench_left(NewBL)),
-                write('Dodałeś ciężar '), write(X), write(' kg na lewą stronę sztangi.'), nl,
-                check_bench
-        ;
-                write('Nie można wykonać takiej akcji!'), nl
-        ),
-        !.
-
-left_add_weight_bench(_) :-
-        i_am_at(Place),
-        \+ Place = strefa_wolnych_ciezarow,
-        write('Nie jesteś w strefie wolnych ciężarów!'), nl.
-
-left_add_weight_bench(X) :-
-        i_am_at(strefa_wolnych_ciezarow),
-        stage(CurrentStage),
-        (member(CurrentStage, [1, 3, 5]) ->
-                weight_inventory(WI),
-                \+ member(X, WI),
-                write('Nie masz takiego ciężaru!'), nl
-        ;
-                write('Nie można wykonać takiej akcji!'), nl
-        ),
-        !.
+    i_am_at(strefa_wolnych_ciezarow),
+    stage(CurrentStage),
+    (member(CurrentStage, [1, 3, 5]) ->
+        remove_weights([X]),
+        bench_left(BL),
+        append(BL, [X], NewBL),
+        retract(bench_left(BL)),
+        assert(bench_left(NewBL)),
+        write('Dodałeś ciężar '), write(X), write(' kg na lewą stronę sztangi.'), nl,
+        check_bench
+    ;
+        write('Nie można wykonać takiej akcji!'), nl
+    ), !.
 
 right_add_weight_bench(X) :-
-        i_am_at(strefa_wolnych_ciezarow),
-        stage(CurrentStage),
-        (member(CurrentStage, [1, 3, 5]) ->
-                weight_inventory(WI),
-                member(X, WI),
-                select(X, WI, NewWI),
-                retract(weight_inventory(WI)),
-                assert(weight_inventory(NewWI)),
-                bench_right(BR),
-                append(BR, [X], NewBR),
-                retract(bench_right(BR)),
-                assert(bench_right(NewBR)),
-                write('Dodałeś ciężar '), write(X), write(' kg na prawą stronę sztangi.'), nl,
-                check_bench
-        ;
-                write('Nie można wykonać takiej akcji!'), nl
-        ),
-        !.
-
-right_add_weight_bench(_) :-
-        i_am_at(Place),
-        \+ Place = strefa_wolnych_ciezarow,
-        write('Nie jesteś w strefie wolnych ciężarów!'), nl.
-
-right_add_weight_bench(X) :-
-        i_am_at(strefa_wolnych_ciezarow),
-        stage(CurrentStage),
-        (member(CurrentStage, [1, 3, 5]) ->
-                weight_inventory(WI),
-                \+ member(X, WI),
-                write('Nie masz takiego ciężaru!'), nl
-        ;
-                write('Nie można wykonać takiej akcji!'), nl
-        ),
-        !.
-
-check_bench :-
-        i_am_at(strefa_wolnych_ciezarow),
-        stage(CurrentStage),
-        (   member(CurrentStage, [1, 3, 5]) ->
-                bench_left(BL),
-                bench_right(BR),
-                sum_list(BL, WBL),
-                sum_list(BR, WBR),
-                TotalWeight is WBL + WBR + 20,
-                write('Obciążenie na sztandze wynosi: '), write(TotalWeight), write(' kg.'), nl,
-
-                (   WBL =:= WBR ->
-                        write('Obciążenie na sztandze jest równo rozłożone!'), nl
-                ;
-                        Diff is abs(WBL - WBR),
-                        (   Diff > 70 ->
-                                write('Sztanga się przewaliła! Wszyscy się teraz z ciebie śmieją. Ze wstydu szybko uciekłeś z siłowni'), nl,
-                                finish(0)
-                        ;
-                                write('Obciążenie na sztandze jest nierówno rozłożone, ale w granicach bezpieczeństwa.'), nl,
-                                write('Różnica w obciążeniu wynosi: '), write(Diff), write(' kg.'), nl,
-                                write('Ciężary na lewej stronie: '), write(BL), nl,
-                                write('Ciężary na prawej stronie: '), write(BR), nl
-                        )
-                )
-        ;
-                write('Nie można wykonać takiej akcji!'), nl
-        ),
-        !.
-
+    i_am_at(strefa_wolnych_ciezarow),
+    stage(CurrentStage),
+    (member(CurrentStage, [1, 3, 5]) ->
+        remove_weights([X]),
+        bench_right(BR),
+        append(BR, [X], NewBR),
+        retract(bench_right(BR)),
+        assert(bench_right(NewBR)),
+        write('Dodałeś ciężar '), write(X), write(' kg na prawą stronę sztangi.'), nl,
+        check_bench
+    ;
+        write('Nie można wykonać takiej akcji!'), nl
+    ), !.
 
 remove_all_weight_bench :-
-        i_am_at(strefa_wolnych_ciezarow),
-        stage(CurrentStage),
-        (member(CurrentStage, [1, 3, 5]) ->
-                bench_left(BL),
-                bench_right(BR),
-                append(BL, BR, AllWeights),
-                weight_inventory(WI),
-                append(WI, AllWeights, NewWI),
-                retract(weight_inventory(WI)),
-                assert(weight_inventory(NewWI)),
-                retract(bench_left(_)),
-                retract(bench_right(_)),
-                assert(bench_left([])),
-                assert(bench_right([])),
-                write('Zdjąłeś wszystkie ciężary ze sztangi!'), nl
-        ;
-                write('Nie można wykonać takiej akcji!'), nl
-        ),
-        !.
+    i_am_at(strefa_wolnych_ciezarow),
+    stage(CurrentStage),
+    (member(CurrentStage, [1, 3, 5]) ->
+        bench_left(BL),
+        bench_right(BR),
+        append(BL, BR, AllWeights),
+        add_weights(AllWeights),
+        retract(bench_left(_)),
+        retract(bench_right(_)),
+        assert(bench_left([])),
+        assert(bench_right([])),
+        write('Zdjąłeś wszystkie ciężary ze sztangi!'), nl
+    ;
+        write('Nie można wykonać takiej akcji!'), nl
+    ), !.
 
+/* Pozostałe predykaty */
+take_bench :-
+    i_am_at(strefa_wolnych_ciezarow),
+    stage(CurrentStage),
+    write('Current stage: '), write(CurrentStage), nl,
+    (CurrentStage =:= 0 ->
+        retract(stage(CurrentStage)),
+        assert(stage(1)),
+        start_stage(1)
+    ;
+    (member(CurrentStage, [1, 3, 5]) ->
+        write('Wykonujesz to ćwiczenie teraz!'), nl
+    ;
+        write('Nie można wykonać takiej akcji!'), nl
+    )
+    ), !.
+
+take_bench :-
+    i_am_at(Place),
+    \+ Place = strefa_wolnych_ciezarow,
+    write('Nie jesteś w strefie wolnych ciężarów!'), nl.
+
+check_bench :-
+    i_am_at(strefa_wolnych_ciezarow),
+    stage(CurrentStage),
+    ( member(CurrentStage, [1, 3, 5]) ->
+        bench_left(BL),
+        bench_right(BR),
+        sum_list(BL, WBL),
+        sum_list(BR, WBR),
+        TotalWeight is WBL + WBR + 20,
+        write('Obciążenie na sztandze wynosi: '), write(TotalWeight), write(' kg.'), nl,
+
+        ( WBL =:= WBR ->
+            write('Obciążenie na sztandze jest równo rozłożone!'), nl
+        ;
+            Diff is abs(WBL - WBR),
+            ( Diff > 70 ->
+                write('Sztanga się przewaliła! Wszyscy się teraz z ciebie śmieją. Ze wstydu szybko uciekłeś z siłowni'), nl,
+                finish(0)
+            ;
+                write('Obciążenie na sztandze jest nierówno rozłożone, ale w granicach bezpieczeństwa.'), nl,
+                write('Różnica w obciążeniu wynosi: '), write(Diff), write(' kg.'), nl,
+                write('Ciężary na lewej stronie: '), write(BL), nl,
+                write('Ciężary na prawej stronie: '), write(BR), nl
+            )
+        )
+    ;
+        write('Nie można wykonać takiej akcji!'), nl
+    ), !.
 
 /* Podnoszenie ciężarów */
 do_bench_press :-
-        i_am_at(strefa_wolnych_ciezarow),
-        stage(CurrentStage),
-        (CurrentStage =:= 1 ->
-                bench_left(BL),
-                bench_right(BR),
-                sum_list(BL, WBL),
-                sum_list(BR, WBR),
-                (WBL =\= WBR ->
-                        write('Obciążenie na sztandze jest nierówno rozłożone!'), nl,
-                        write('Nie możesz podnieść sztangi!'), nl,
-                        !
-                ;
-                        true
-                ),
-                write('Podnosisz sztangę o obciążeniu '), write(WBL + WBR + 20), write(' kg.'), nl,
-                strength(S),
-                (WBL + WBR + 20 =< S ->
-                        retract(stage(CurrentStage)),
-                        assert(stage(CurrentStage + 1)),
-                        retract(lifted(klatka_piersiowa, L)),
-                        NewL is L + (WBL + WBR + 20),
-                        assert(lifted(klatka_piersiowa, NewL)),
-                        write('Podniosłeś sztangę o wadze'), write(WBL + WBR + 20), write(' kg!'), nl,
-                        %check_goal
-                        start_stage(CurrentStage + 1)
-                ;
-                        die
-                )
+    i_am_at(strefa_wolnych_ciezarow),
+    stage(CurrentStage),
+    (CurrentStage =:= 1 ->
+        bench_left(BL),
+        bench_right(BR),
+        sum_list(BL, WBL),
+        sum_list(BR, WBR),
+        (WBL =\= WBR ->
+            write('Obciążenie na sztandze jest nierówno rozłożone!'), nl,
+            write('Nie możesz podnieść sztangi!'), nl,
+            fail % Dodano fail, aby zatrzymać wykonanie predykatu
         ;
-                write('Nie można wykonać takiej akcji!'), nl
-        ),
-        !.
+            write('Podnosisz sztangę o obciążeniu '), write(WBL + WBR + 20), write(' kg.'), nl,
+            strength(S),
+            (WBL + WBR + 20 =< S ->
+                retract(stage(CurrentStage)),
+                assert(stage(CurrentStage + 1)),
+                retract(lifted(klatka_piersiowa, L)),
+                NewL is L + (WBL + WBR + 20),
+                assert(lifted(klatka_piersiowa, NewL)),
+                write('Podniosłeś sztangę o wadze '), write(WBL + WBR + 20), write(' kg!'), nl,
+                start_stage(CurrentStage + 1)
+            ;
+                die
+            )
+        )
+    ;
+        write('Nie można wykonać takiej akcji!'), nl
+    ), !.
 
 
 % STAGES
 
 start_stage(X) :-
         X =:= 1 -> (
-                assert(at(szczur_bojowy, strefa_wolnych_ciezarow)),
-                assert(at(brunetka, strefa_maszyn)),
-                assert(at(duzy_chlop, strefa_wolnych_ciezarow)),
-                assert(npc(szczur_bojowy)),
-                assert(npc(brunetka)),
-                assert(npc(duzy_chlop)),
+                % assert(at(szczur_bojowy, strefa_wolnych_ciezarow)),
+                % assert(at(brunetka, strefa_cardio)),
+                % assert(at(duzy_chlop, strefa_wolnych_ciezarow)),
+                % assert(npc(szczur_bojowy)),
+                % assert(npc(brunetka)),
+                % assert(npc(duzy_chlop)),
                 write('Rozpoczynasz trening na klatę! Rozgladasz się obok sztangi, ale nie ma obok niej żadnych ciężarów.'), nl,
                 write('Pora zebrać cięzary!'), nl,
                 write('Rozejrzyj się po siłowni i przynieś ciężary, a następnie je nałóż!'), nl,
+                write('Jeżeli nie znajdziesz nieużywanego sprzętu, możesz spróbować zapytać o niego innych ćwiczących'), nl,
                 write('Pamiętaj, że z dwóch stron trzeba mieć tyle samo na sztandze!'), nl,
                 write('Im więcej podniesiesz, tym lepszy wynik zdobędziesz!'), nl,
                 write('Powodzenia!'), nl
         );
         X =:= 2 -> (
-                assert(npc(czlowiek_szczuply)),
-                assert(at(czlowiek_szczuply, strefa_wolnych_ciezarow)),
+                assert(npc(swiezak)),
+                assert(at(swiezak, strefa_wolnych_ciezarow)),
                 write('Gratulacje udało ci się wykonać pierwszą serię!'), nl,
-                write('Kiedy opoczywasz po pierwszej serii, podchodzi do ciebie czlowiek_szczuply i z pytaniem:'), nl,
+                write('Kiedy odpoczywasz po pierwszej serii, podchodzi do ciebie jakiś przeciętnie zbudowany chłopak z pytaniem:'), nl,
                 write(' - Hej, ile zostało ci serii?'), nl,
                 write(' - Jeszcze dwie.'), nl,
                 write(' - Mogę w takim razie się dołączyć?'), nl,
@@ -636,6 +654,14 @@ start_stage(X) :-
                 write('Musisz znaleźć magnezję!'), nl,
                 write("Może ktoś na siłowni ci pomoże?"), nl
         ).
+
+/* Rozmowa w kwestii oddania bidonu */
+
+talk(X) :-
+        i_am_at(strefa_wolnych_ciezarow),
+        X = swiezak,
+        write('Ty: Cześć, stary, znalazłem twój czerwony bidon w łazience.'), nl,
+        write('Swiezak: Dzięki, stary! Nie wiem co bym bez ciebie zrobił!'), nl.
 
 
 /* Śmierć */
@@ -716,23 +742,46 @@ instructions :-
         write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
 
     ; Place = szatnia_meska ->
-        write('- Udać się do strefy treningowej (go(strefa_wolnych_ciezarow), go(strefa_cardio))'), nl,
+        write('- Udać się do strefy treningowej (go(strefa_wolnych_ciezarow), go(strefa_cardio), go(strefa_maszyn))'), nl,
+        write('- Udać się do łazienki (go(lazienka))'), nl,
         write('- Wrócić na recepcję (go(recepcja))'), nl,
         write('- Sprawdzić nieczynny prysznic (go(nieczynny_prysznic))'), nl,
+        write('- Przebrać się w strój sportowy (wear(stroj_sportowy))'), nl,
         write('- Sprawdzić ekwipunek (inventory)'), nl,
         write('- Sprawdzić pieniądze (check_money)'), nl,
         write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
 
     ; Place = strefa_wolnych_ciezarow ->
         write('- Podnieść ciężary (take(X))'), nl,
-        write('- Trenować (train(Partia))'), nl,
+        write('- Trenować na ławce (take_bench)'), nl,
         write('- Wrócić do szatni (go(szatnia_meska))'), nl,
         write('- Sprawdzić ekwipunek (inventory)'), nl,
         write('- Sprawdzić pieniądze (check_money)'), nl,
-        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
-
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl,
+        write('- Dodać ciężar na lewą stronę sztangi (left_add_weight_bench(X))'), nl,
+        write('- Dodać ciężar na prawą stronę sztangi (right_add_weight_bench(X))'), nl,
+        write('- Zdjąć wszystkie ciężary ze sztangi (remove_all_weight_bench)'), nl,
+        write('- Sprawdzić obciążenie na sztandze (check_bench)'), nl,
+        write('- Wykonać trening (do_bench_press)'), nl,
+        write('- Sprawdzić jakie ciężary masz w ekwipunku (weight_inventory)'), nl,
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl,
+        write('- Porozmawiać z osobami w okolicy (talk(X))'), nl
+    ; Place = strefa_maszyn ->
+        write('- Podnieść ciężary (take(X))'), nl,
+        write('- Wrócić do szatni (go(szatnia_meska))'), nl,
+        write('- Sprawdzić ekwipunek (inventory)'), nl,
+        write('- Sprawdzić pieniądze (check_money)'), nl,
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl,
+        write('- Porozmawiać z osobami w okolicy (talk(X))'), nl
     ; Place = strefa_cardio ->
         write('- Wrócić do szatni (go(szatnia_meska))'), nl,
+        write('- Sprawdzić ekwipunek (inventory)'), nl,
+        write('- Sprawdzić pieniądze (check_money)'), nl,
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl,
+        write('- Porozmawiać z osobami w okolicy (talk(X))'), nl
+    ; Place = lazienka ->
+        write('- Wrócić do szatni (go(szatnia_meska))'), nl,
+        write('- Podnieść przedmioty (take(X))'), nl,
         write('- Sprawdzić ekwipunek (inventory)'), nl,
         write('- Sprawdzić pieniądze (check_money)'), nl,
         write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
