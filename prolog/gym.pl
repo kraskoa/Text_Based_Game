@@ -3,7 +3,7 @@
 :- dynamic i_am_at/1, at/2, holding/1, strength/1, lifted/2, money/1, stage/1, score/1, weight_inventory/1, bench_left/1, bench_right/1, npc/1.
 :- retractall(at(_, _)), retractall(i_am_at(_)), retractall(holding(_)), retractall(strength(_)), retractall(lifted(_, _)), retractall(weight_inventory(_)), retractall(bench_left(_)), retractall(bench_right(_)).
 :- discontiguous talk/1.
-:- assert(weight_inventory(_{})).
+% :- assert(weight_inventory(_{})).
 
 /* Początkowa lokalizacja */
 i_am_at(dom).
@@ -51,7 +51,7 @@ subtract_weights(CurrentWeights, [], CurrentWeights).
 subtract_weights(CurrentWeights, [Weight | Rest], NewWeights) :-
     (get_dict(Weight, CurrentWeights, Count) ->
         (Count = 1 ->
-            del_dict(Weight, CurrentWeights, TempWeights)
+            del_dict(Weight, CurrentWeights, _, TempWeights)
         ;
             NewCount is Count - 1,
             put_dict(Weight, CurrentWeights, NewCount, TempWeights)
@@ -305,17 +305,11 @@ drop(_) :-
 
 inventory :-
     findall(Item, holding(Item), Items),
-    weight_inventory(Weights),
-    (Items \= [] ->
+    show_weight_inventory,
+    (Items = [] ->
         write('Twój ekwipunek: '), write(Items), nl
     ;
         write('Twój ekwipunek jest pusty!'), nl
-    ),
-    (Weights \= {} ->
-        write('Ciężary w twoim ekwipunku: '), nl,
-        show_weights(Weights)
-    ;
-        write('Nie masz żadnych ciężarów w ekwipunku!'), nl
     ).
 
 /* Spożywanie suplementów */
@@ -583,7 +577,7 @@ check_bench :-
 do_bench_press :-
     i_am_at(strefa_wolnych_ciezarow),
     stage(CurrentStage),
-    (CurrentStage =:= 1 ->
+    member(CurrentStage, [1, 3, 5]) -> (
         bench_left(BL),
         bench_right(BR),
         sum_list(BL, WBL),
@@ -591,29 +585,33 @@ do_bench_press :-
         (WBL =\= WBR ->
             write('Obciążenie na sztandze jest nierówno rozłożone!'), nl,
             write('Nie możesz podnieść sztangi!'), nl,
-            fail % Dodano fail, aby zatrzymać wykonanie predykatu
+            fail
         ;
             write('Podnosisz sztangę o obciążeniu '), write(WBL + WBR + 20), write(' kg.'), nl,
             strength(S),
             (WBL + WBR + 20 =< S ->
                 retract(stage(CurrentStage)),
-                assert(stage(CurrentStage + 1)),
+                NextStage is CurrentStage + 1,
+                assert(stage(NextStage)),
                 retract(lifted(klatka_piersiowa, L)),
                 NewL is L + (WBL + WBR + 20),
                 assert(lifted(klatka_piersiowa, NewL)),
                 write('Podniosłeś sztangę o wadze '), write(WBL + WBR + 20), write(' kg!'), nl,
-                start_stage(CurrentStage + 1)
+                start_stage(NextStage)
             ;
                 die
             )
         )
-    ;
+    ) ; (
         write('Nie można wykonać takiej akcji!'), nl
     ), !.
 
+/* Magnezja */
+has_magnesium :-
+    holding(magnesium).
+
 
 % STAGES
-
 start_stage(X) :-
         X =:= 1 -> (
                 % assert(at(szczur_bojowy, strefa_wolnych_ciezarow)),
@@ -635,24 +633,47 @@ start_stage(X) :-
                 assert(at(swiezak, strefa_wolnych_ciezarow)),
                 write('Gratulacje udało ci się wykonać pierwszą serię!'), nl,
                 write('Kiedy odpoczywasz po pierwszej serii, podchodzi do ciebie jakiś przeciętnie zbudowany chłopak z pytaniem:'), nl,
-                write(' - Hej, ile zostało ci serii?'), nl,
-                write(' - Jeszcze dwie.'), nl,
-                write(' - Mogę w takim razie się dołączyć?'), nl,
-                write(' - Jasne'), nl,
-                write(' - Tak w ogóle nie widziałeś przypadkiem gdzieś na siłowni czerwonego bidonu, musiałem go wczoraj zostawić w szatni. Znalazcy z pewnością się odwdzięczę'), nl,
+                write(' Swiezak: Hej, ile zostało ci serii?'), nl,
+                write(' Ty: Jeszcze dwie.'), nl,
+                write(' Swiezak: Mogę w takim razie się dołączyć?'), nl,
+                write(' Ty: Jasne'), nl,
+                write(' Swiezak: Tak w ogóle nie widziałeś przypadkiem gdzieś na siłowni czerwonego bidonu, musiałem go wczoraj zostawić w szatni. Znalazcy z pewnością się odwdzięczę'), nl,
                 (holding(czerwony_bidon) ->
-                    write('Przypominasz sobie, że podniosłeś taki bidon w łazience'), nl,
-                    write('Możesz teraz go oddać (give(czerwony_bidon, czlowiek_szczuply))'), nl
+                write('Przypominasz sobie, że podniosłeś taki bidon w łazience'), nl,
+                write('Podajesz mu bidon'), nl,
+                        write(' Swiezak: O, dzięki! Nie wiem co bym bez ciebie zrobił!'), nl,
+                        retract(holding(czerwony_bidon)), nl,
+                        write(' Ty: Nie ma sprawy!'), nl,
+                        retract(stage(2)),
+                        assert(stage(3)),
+                        start_stage(3)
                 ;
-                    write(' - Niestety, nie widziałem go. Ale i tak teraz odpoczywam pójdę go poszukać (Powiedziałeś już myśląc o tym jaka nagroda cię czeka)'), nl,
-                    write(' - Powodzenia!'), nl
-                )
+                write(' Ty: Niestety, nie widziałem go. Ale i tak teraz odpoczywam pójdę go poszukać (Powiedziałeś już myśląc o tym jaka nagroda cię czeka)'), nl,
+                write(' Swiezak: Powodzenia!'), nl
+)
         );
         X =:= 3 -> (
+                write(' Swiezak: W nagrodę trzymaj tą przedtreningówę'), nl,
+                write(' Ty: Dzięki!'), nl,
+                nl,
+                write('Spojrzałeś na datę ważności przedtreningówki i okazało się, że jest przeterminowana'), nl,
+                write('Nie chcąć się narzucać, postanowiłeś nie mówić o tym swojemu nowemu znajomemu'), nl,
+                write('Jednak wiesz, że nie możesz jej użyć'), nl,
+                nl,
+                write('Po odnalezieniu bidonu, wracasz do strefy wolnych ciężarów i szykujesz się na drugą serię.'), nl,
+                write('Możesz użyć przedtreningówki, aby zwiększyć swoją siłę!'), nl
+        );
+        X =:= 4 -> (
                 write('Gratulacje udało ci się wykonać drugą serię!'), nl,
-                write('Wiesz jednak, że bez magnezji nie uda ci się wykonać kolejnej serii.'), nl,
-                write('Musisz znaleźć magnezję!'), nl,
-                write("Może ktoś na siłowni ci pomoże?"), nl
+                write('Podczas odopoczynku możesz przejść się po siłowni i porozmawiać z innymi ćwiczącymi.'), nl
+        );
+        X =:= 5 -> (
+                nl
+        );
+        X =:= 6 -> (
+                write('Gratulacje udało ci się wykonać trening!'), nl,
+                write('Podczas odopoczynku możesz przejść się po siłowni i porozmawiać z innymi ćwiczącymi.'), nl,
+                finish(1)
         ).
 
 /* Rozmowa w kwestii oddania bidonu */
@@ -660,8 +681,20 @@ start_stage(X) :-
 talk(X) :-
         i_am_at(strefa_wolnych_ciezarow),
         X = swiezak,
+        (holding(czerwony_bidon) ->
         write('Ty: Cześć, stary, znalazłem twój czerwony bidon w łazience.'), nl,
-        write('Swiezak: Dzięki, stary! Nie wiem co bym bez ciebie zrobił!'), nl.
+        write('Swiezak: Dzięki, stary! Nie wiem co bym bez ciebie zrobił!'), nl,
+        retract(holding(czerwony_bidon)), nl,
+        write(' Ty: Nie ma sprawy!'), nl,
+        retract(stage(2)),
+        assert(stage(3)),
+        start_stage(3)
+
+;
+        write(' Swiezak: I jak znalazłeś mój bidon?'), nl,
+        write(' Ty: Niestety, jeszcze go nie znalazłem'), nl,
+        write(' Swiezak: Powodzenia!'), nl
+        ).
 
 
 /* Śmierć */
