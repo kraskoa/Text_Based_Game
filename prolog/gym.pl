@@ -103,23 +103,25 @@ item_price(duza_strzykawka, 50).
 /* Rozmowa z NPC */
 talk(swiezak) :-
     i_am_at(strefa_wolnych_ciezarow),
-    stage(2),
-    (holding(czerwony_bidon) ->
-        write('Ty: Cześć, stary, znalazłem twój czerwony bidon w łazience.'), nl,
-        write('Swiezak: Dzięki, stary! Nie wiem co bym bez ciebie zrobił!'), nl,
-        retract(holding(czerwony_bidon)),
-        write('Ty: Nie ma sprawy!'), nl,
-        retract(stage(2)),
-        assert(stage(3)),
-        start_stage(3)
-    ;
-        stage(CurrentStage),
-        (CurrentStage > 2 ->
-            write('Swiezak: Wielkie dzięki!!!'), nl
+    stage(CurrentStage),
+    (CurrentStage =:= 2 ->
+        (holding(czerwony_bidon) ->
+            write('Ty: Cześć, stary, znalazłem twój czerwony bidon w łazience.'), nl,
+            write('Swiezak: Dzięki, stary! Nie wiem co bym bez ciebie zrobił!'), nl,
+            retract(holding(czerwony_bidon)),
+            write('Ty: Nie ma sprawy!'), nl,
+            retract(stage(2)),
+            assert(stage(3)),
+            start_stage(3)
         ;
             write('Swiezak: Ktoś widział mój czerwony bidon?'), nl,
             write('Ty: ...'), nl
         )
+    ;
+    CurrentStage =:= 3 ; CurrentStage =:= 4 ->
+        write('Swiezak: Cześć! Jak tam trening?'), nl
+    ;
+        write('Nie widzisz tutaj swiezak.'), nl
     ), !.
 
 talk(NPC) :-
@@ -175,7 +177,7 @@ interact(podejrzany_typ) :-
 interact(chudy_szczur) :-
     increment_interaction_count(chudy_szczur),
     interaction_count(chudy_szczur, Count),
-    
+
     (Count =:= 1 ->
         write('Ty: Ej, mały, potrzebuję tych talerzy 5kg, mogę je zabrać?'), nl,
         write('Chudy szczur: (piszczy nerwowo) Tylko... nie bij mnie! Bierz, co chcesz, i znikaj!'), nl,
@@ -363,7 +365,6 @@ at(czlowiek_szczuply, strefa_maszyn).
 at(duzy_chlop, strefa_maszyn).
 at(szczur_bojowy, strefa_maszyn).
 at(lawka, strefa_wolnych_ciezarow).
-at(talerze_10_kg, strefa_cardio).
 
 /* Przedmioty do kupienia */
 buy_at(monster, recepcja).
@@ -720,7 +721,6 @@ do_bench_press :-
                 retract(lifted(klatka_piersiowa, L)),
                 NewL is L + (WBL + WBR + 20),
                 assert(lifted(klatka_piersiowa, NewL)),
-                write('Podniosłeś sztangę o wadze '), write(WBL + WBR + 20), write(' kg!'), nl,
                 start_stage(NextStage)
             ;
                 write('Obciążenie cię przygniata to będzie twój koniec!'), nl,
@@ -787,8 +787,7 @@ start_stage(X) :-
                 write('Nie chcąć się narzucać, postanowiłeś nie mówić o tym swojemu nowemu znajomemu'), nl,
                 write('Jednak wiesz, że nie możesz jej użyć'), nl,
                 nl,
-                write('Po odnalezieniu bidonu, wracasz do strefy wolnych ciężarów i szykujesz się na drugą serię.'), nl,
-                write('Możesz użyć przedtreningówki, aby zwiększyć swoją siłę!'), nl
+                write('Po odnalezieniu bidonu, wracasz do strefy wolnych ciężarów i szykujesz się na drugą serię.'), nl
         );
         X =:= 4 -> (
                 write('Gratulacje udało ci się wykonać drugą serię!'), nl,
@@ -799,28 +798,10 @@ start_stage(X) :-
         );
         X =:= 6 -> (
                 write('Gratulacje udało ci się wykonać trening!'), nl,
-                finish(1) % to do
+                retractall(score(_)),
+                assert(score(1)),
+                finish
         ).
-
-/* Rozmowa w kwestii oddania bidonu */
-
-% talk(swiezak) :-
-%     i_am_at(strefa_wolnych_ciezarow),
-%     (holding(czerwony_bidon) ->
-%         write('Ty: Cześć, stary, znalazłem twój czerwony bidon w łazience.'), nl,
-%         write('Swiezak: Dzięki, stary! Nie wiem co bym bez ciebie zrobił!'), nl,
-%         retract(holding(czerwony_bidon)),
-%         write('Ty: Nie ma sprawy!'), nl,
-%         retract(stage(2)),
-%         assert(stage(3)),
-%         start_stage(3)
-%     ;
-%         write('Swiezak: Ktoś widział mój czerwony bidon?'), nl,
-%         write('Ty: ...'), nl
-%     ), !.
-
-% talk(_) :-
-%     write('Nie widzisz tutaj tej osoby.'), nl.
 
 
 /* Śmierć */
@@ -831,7 +812,7 @@ die :-
     (Odpowiedz = tak ->
         write('Miałeś niesamowite szczęście.'), nl
     ;
-        finish(0)
+        finish
     ).
 
 % die :-
@@ -901,7 +882,9 @@ instructions :-
         write('- Wrócić do domu (go(dom))'), nl,
         write('- Sprawdzić ekwipunek (inventory)'), nl,
         write('- Sprawdzić pieniądze (check_money)'), nl,
-        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl,
+        write('- Kupić przedmioty (buy(X))'), nl,
+        write('- Spożyć przedmioty (consume(X))'), nl
     ; Place = recepcja ->
         write('- Porozmawiać z recepcjonistką (talk(recepcjonistka))'), nl,
         write('- Kupić przedmioty (buy(X))'), nl,
@@ -909,8 +892,8 @@ instructions :-
         write('- Wyjść na parking przed siłownię (go(parking))'), nl,
         write('- Sprawdzić ekwipunek (inventory)'), nl,
         write('- Sprawdzić pieniądze (check_money)'), nl,
-        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
-
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl,
+        write('- Spożyć przedmioty (consume(X))'), nl
     ; Place = szatnia_meska ->
         write('- Udać się do strefy treningowej (go(strefa_wolnych_ciezarow), go(strefa_cardio), go(strefa_maszyn))'), nl,
         write('- Udać się do łazienki (go(lazienka))'), nl,
@@ -919,8 +902,8 @@ instructions :-
         write('- Przebrać się w strój sportowy (wear(stroj_sportowy))'), nl,
         write('- Sprawdzić ekwipunek (inventory)'), nl,
         write('- Sprawdzić pieniądze (check_money)'), nl,
-        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
-
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl,
+        write('- Kupić przedmioty (buy(X))'), nl
     ; Place = strefa_wolnych_ciezarow ->
         write('- Podnieść ciężary (take(X))'), nl,
         write('- Trenować na ławce (take_bench)'), nl,
@@ -935,26 +918,30 @@ instructions :-
         write('- Wykonać trening (do_bench_press)'), nl,
         write('- Sprawdzić jakie ciężary masz w ekwipunku (weight_inventory)'), nl,
         write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl,
-        write('- Porozmawiać z osobami w okolicy (talk(X))'), nl
+        write('- Porozmawiać z osobami w okolicy (talk(X))'), nl,
+        write('- Spożyć przedmioty (consume(X))'), nl
     ; Place = strefa_maszyn ->
         write('- Podnieść ciężary (take(X))'), nl,
         write('- Wrócić do szatni (go(szatnia_meska))'), nl,
         write('- Sprawdzić ekwipunek (inventory)'), nl,
         write('- Sprawdzić pieniądze (check_money)'), nl,
         write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl,
-        write('- Porozmawiać z osobami w okolicy (talk(X))'), nl
+        write('- Porozmawiać z osobami w okolicy (talk(X))'), nl,
+        write('- Spożyć przedmioty (consume(X))'), nl
     ; Place = strefa_cardio ->
         write('- Wrócić do szatni (go(szatnia_meska))'), nl,
         write('- Sprawdzić ekwipunek (inventory)'), nl,
         write('- Sprawdzić pieniądze (check_money)'), nl,
         write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl,
-        write('- Porozmawiać z osobami w okolicy (talk(X))'), nl
+        write('- Porozmawiać z osobami w okolicy (talk(X))'), nl,
+        write('- Spożyć przedmioty (consume(X))'), nl
     ; Place = lazienka ->
         write('- Wrócić do szatni (go(szatnia_meska))'), nl,
         write('- Podnieść przedmioty (take(X))'), nl,
         write('- Sprawdzić ekwipunek (inventory)'), nl,
         write('- Sprawdzić pieniądze (check_money)'), nl,
-        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl
+        write('- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)'), nl,
+        write('- Spożyć przedmioty (consume(X))'), nl
     ), nl.
 
 
@@ -966,15 +953,19 @@ start :-
         initialize_interaction_counts,
         look.
 
-finish :-
-        write('Koniec gry! Dziękujemy za udział.'), nl,
-        halt.
-
 /* Zakończenie gry */
-finish(score) :-
-        (score =:= 1 -> write('Gratulacje! Wygrałeś!') ; write('Przegrałeś!')), nl,
-        write('Dziękujemy za grę!'), nl,
-        halt.
+finish :-
+    score(Value),
+    (Value =:= 1 ->
+        write('Gratulacje! Wygrałeś!'), nl,
+        lifted(klatka_piersiowa, L),
+        write('Twój wynik to: '), write(L), nl
+    ;
+        write('Przegrałeś!')
+    ),
+    nl,
+    write('Dziękujemy za grę!'), nl,
+    halt.
 
 /* Debugging paths */
 debug_paths :-

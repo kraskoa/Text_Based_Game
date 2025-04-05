@@ -1,0 +1,345 @@
+➜  prolog ✗ swipl
+Welcome to SWI-Prolog (threaded, 64 bits, version 8.4.2)
+SWI-Prolog comes with ABSOLUTELY NO WARRANTY. This is free software.
+Please run ?- license. for legal details.
+
+For online help and background, visit https://www.swi-prolog.org
+For built-in help, use ?- help(Topic). or ?- apropos(Word).
+
+?- [gym].
+true.
+
+?- start.
+Twoim celem jest odbycie treningu na siłowni.
+Zbierz potrzebny ekwipunek z domu, wejdź na siłownię i wykonaj ćwiczenia!
+Jesteś w domu. Musisz zebrać ekwipunek na siłownię!
+
+Tutaj znajduje się stroj_sportowy.
+Tutaj znajduje się woda.
+Tutaj znajduje się karnet.
+
+true.
+
+?- take(woda).
+Podniosłeś woda.
+true.
+
+?- take(stroj_sportowy).
+Podniosłeś stroj_sportowy.
+true.
+
+?- inventory.
+Twój ekwipunek: [woda,stroj_sportowy]
+Ekwipunek ciężarów jest pusty.
+true.
+
+?- instructions.
+Możesz wykonać następujące akcje:
+- Zabrać przedmioty (take(X))
+- Sprawdzić ekwipunek (inventory)
+- Pójść na parking przed siłownię (go(parking))
+- Sprawdzić pieniądze (check_money)
+- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)
+
+true.
+
+?- go(parking).
+Jesteś na parkingu przed siłownią. Możesz iść do siłowni!
+
+Tutaj znajduje się podejrzany_typ.
+
+true.
+
+?- talk(podejrzany_typ).
+Podejrzany typ:
+Witaj, czyżbyś szedł na trening? Może chcesz coś mocniejszego, co na pewno poprawi twoje wyniki? Moje produkty są całkowicie bezpieczne!
+Możesz tutaj kupić:
+ - mala_strzykawka (buy(mala_strzykawka)) za 30zł
+ - duza_strzykawka (buy(duza_strzykawka)) za 50zł.
+true.
+
+?- check_money.
+Masz 31 zł na koncie.
+true.
+
+?- buy(mala_strzykawka).
+Kupiono mala strzykawka.
+Pozostało Ci 1 zł.
+true.
+
+?- consume(mala_strzykawka).
+Spożywasz mala_strzykawka.
+Twoja siła wzrosła o 30!
+true.
+
+?- go(recepcja).
+Jesteś w recepcji. Możesz kupić suplementy i karnet!
+
+Tutaj znajduje się recepcjonistka.
+
+true.
+
+?- talk(recepcjonistka).
+Recepcjonistka:
+Witaj na siłowni! Czy czegoś ci potrzeba?
+Możesz tutaj kupić:
+ - monster (buy(monster)) za 10zł
+ - przedtreningowka (buy(przedtreningowka)) za 20zł
+ - karnet (buy(karnet)) za 40zł.
+true.
+
+?- go(szatnia_meska).
+Nie masz karnetu! Może chcesz sprawdzić czy skomplementowanie recepcjonistki coś da? (tak/nie)
+|: tak.
+Mówisz recepcjonistce, że ma piękny uśmiech.
+Recepcjonistka przewraca oczami ale mimo to jednak pozwala ci wejść.
+Jesteś w męskiej szatni. Możesz udać się do stref treningowych!
+Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku?
+
+
+true.
+
+?- go(lazienka).
+Jesteś w łazience.
+
+Tutaj znajduje się czerwony_bidon.
+
+true.
+
+?- take(czerwony_bidon).
+Podniosłeś czerwony_bidon.
+true.
+
+?- go(szatnia_meska).
+Wchodzisz do szatni męskiej!
+Jesteś w męskiej szatni. Możesz udać się do stref treningowych!
+Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku?
+
+
+true.
+
+?- go(strefa_wolnych_ciezarow).
+Nie możesz iść na trening bez stroju sportowego! Przebierz się!
+true.
+
+?- wear(stroj_sportowy).
+Przebrałeś się w strój sportowy!
+true.
+
+?- go(strefa_wolnych_ciezarow).
+Jesteś w strefie wolnych ciężarów.
+
+Tutaj znajduje się chudy_szczur.
+Tutaj znajduje się wielki_chlop.
+Tutaj znajduje się lawka.
+
+true.
+
+?- take_bench.
+Current stage: 0
+Rozpoczynasz trening na klatę! Rozgladasz się obok sztangi, ale nie ma obok niej żadnych ciężarów.
+Pora zebrać cięzary!
+Rozejrzyj się po siłowni i przynieś ciężary, a następnie je nałóż!
+Jeżeli nie znajdziesz nieużywanego sprzętu, możesz spróbować zapytać o niego innych ćwiczących
+Pamiętaj, że z dwóch stron trzeba mieć tyle samo na sztandze!
+Im więcej podniesiesz, tym lepszy wynik zdobędziesz!
+Powodzenia!
+true.
+
+?- talk(wielki_chlop).
+Ty: Ej, serio, potrzebuję tych talerzy. Możesz mi je dać?
+Wielki chłop: Jeszcze jedno słowo i pożałujesz!
+true.
+
+?- talk(chudy_szczur).
+Ty: Ej, mały, potrzebuję tych talerzy 5kg, mogę je zabrać?
+Chudy szczur: (piszczy nerwowo) Tylko... nie bij mnie! Bierz, co chcesz, i znikaj!
+Ty: Spoko, luz. Tylko mi je podaj, i będę się zwijał.
+Chudy szczur: (podaje talerze) Masz, i już mnie nie zaczepiaj!
+Dodałeś do swojego ekwipunku ciężary: 5 kg i 5 kg.
+true.
+
+?- inventory.
+Twój ekwipunek: [woda,czerwony_bidon]
+Ciężary w twoim ekwipunku:
+2x 5kg
+true.
+
+?- instructions.
+Możesz wykonać następujące akcje:
+- Podnieść ciężary (take(X))
+- Trenować na ławce (take_bench)
+- Wrócić do szatni (go(szatnia_meska))
+- Sprawdzić ekwipunek (inventory)
+- Sprawdzić pieniądze (check_money)
+- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)
+- Dodać ciężar na lewą stronę sztangi (left_add_weight_bench(X))
+- Dodać ciężar na prawą stronę sztangi (right_add_weight_bench(X))
+- Zdjąć wszystkie ciężary ze sztangi (remove_all_weight_bench)
+- Sprawdzić obciążenie na sztandze (check_bench)
+- Wykonać trening (do_bench_press)
+- Sprawdzić jakie ciężary masz w ekwipunku (weight_inventory)
+- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)
+- Porozmawiać z osobami w okolicy (talk(X))
+- Spożyć przedmioty (consume(X))
+
+true.
+
+?- left_add_weight_bench(5).
+Dodałeś ciężar 5 kg na lewą stronę sztangi.
+Obciążenie na sztandze wynosi: 25 kg.
+Obciążenie na sztandze jest nierówno rozłożone, ale w granicach bezpieczeństwa.
+Różnica w obciążeniu wynosi: 5 kg.
+Ciężary na lewej stronie: [5]
+Ciężary na prawej stronie: []
+true.
+
+?- right_add_weight_bench(5).
+Dodałeś ciężar 5 kg na prawą stronę sztangi.
+Obciążenie na sztandze wynosi: 30 kg.
+Obciążenie na sztandze jest równo rozłożone!
+true.
+
+?- do_bench_press.
+Podnosisz sztangę o obciążeniu 5+5+20 kg.
+Gratulacje udało ci się wykonać pierwszą serię!
+Kiedy odpoczywasz po pierwszej serii, podchodzi do ciebie jakiś przeciętnie zbudowany chłopak z pytaniem:
+ Swiezak: Hej, ile zostało ci serii?
+ Ty: Jeszcze dwie.
+ Swiezak: Mogę w takim razie się dołączyć?
+ Ty: Jasne
+ Swiezak: Tak w ogóle nie widziałeś przypadkiem gdzieś na siłowni czerwonego bidonu, musiałem go wczoraj zostawić w szatni. Znalazcy z pewnością się odwdzięczę
+Przypominasz sobie, że podniosłeś taki bidon w łazience
+Podajesz mu bidon
+ Swiezak: O, dzięki! Nie wiem co bym bez ciebie zrobił!
+
+ Ty: Nie ma sprawy!
+ Swiezak: W nagrodę trzymaj tą przedtreningówę
+ Ty: Dzięki!
+
+Spojrzałeś na datę ważności przedtreningówki i okazało się, że jest przeterminowana
+Nie chcąć się narzucać, postanowiłeś nie mówić o tym swojemu nowemu znajomemu
+Jednak wiesz, że nie możesz jej użyć
+
+Po odnalezieniu bidonu, wracasz do strefy wolnych ciężarów i szykujesz się na drugą serię.
+true.
+
+?- do_bench_press.
+Podnosisz sztangę o obciążeniu 5+5+20 kg.
+Gratulacje udało ci się wykonać drugą serię!
+Podczas odopoczynku możesz przejść się po siłowni i porozmawiać z innymi ćwiczącymi.
+true.
+
+?- do_bench_press.
+Nie można wykonać takiej akcji!
+true.
+
+?- go(szatnia_meska).
+Wchodzisz do szatni męskiej!
+Jesteś w męskiej szatni. Możesz udać się do stref treningowych!
+Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku?
+
+
+true.
+
+?- instructions.
+Możesz wykonać następujące akcje:
+- Udać się do strefy treningowej (go(strefa_wolnych_ciezarow), go(strefa_cardio), go(strefa_maszyn))
+- Udać się do łazienki (go(lazienka))
+- Wrócić na recepcję (go(recepcja))
+- Sprawdzić nieczynny prysznic (go(nieczynny_prysznic))
+- Przebrać się w strój sportowy (wear(stroj_sportowy))
+- Sprawdzić ekwipunek (inventory)
+- Sprawdzić pieniądze (check_money)
+- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)
+- Kupić przedmioty (buy(X))
+
+true.
+
+?- go(strefa_maszyn).
+Jesteś w strefie maszyn.
+
+Tutaj znajduje się czlowiek_szczuply.
+Tutaj znajduje się duzy_chlop.
+Tutaj znajduje się szczur_bojowy.
+
+true.
+
+?- talk(szczur_bojowy).
+Ty: Ej, byczku, te 20 kilo... mogę je zabrać?
+Szczur bojowy: Jasne, stary, bierz. I tak mi się już nie przydadzą.
+Ty: Dzięki, jesteś wielki!
+Szczur bojowy: Tylko uważaj, żebyś sobie krzywdy nie zrobił. To ciężkie żelastwo.
+Dodałeś do swojego ekwipunku ciężary: 20 kg i 20 kg.
+true.
+
+?- inventory.
+Twój ekwipunek: [woda]
+Ciężary w twoim ekwipunku:
+2x 20kg
+true.
+
+?- go(szatnia_meska).
+Wchodzisz do szatni męskiej!
+Jesteś w męskiej szatni. Możesz udać się do stref treningowych!
+Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku?
+
+
+true.
+
+?- go(strefa_cardio).
+Przechodzisz do strefy cardio. Zapatrujesz się na ćwiczące się osoby.
+Nawet nie zauważasz kiedy mija czas na kolejną serię!
+Jesteś w strefie cardio.
+
+Tutaj znajduje się brunetka.
+
+true.
+
+?- talk(brunetka).
+Ty: Cześć, przepraszam cię najmocniej, że przeszkadzam, ale czy będziesz jeszcze używać tych 10kg?
+Brunetka: Zostaw mnie, mam chłopaka!
+Ty: Źle zrozumiałaś, ja tylko chciałem...
+Brunetka: Mam wezwać ochronę? Spadaj!
+true.
+
+?- go(szatnia_meska).
+Wchodzisz do szatni męskiej!
+Jesteś w męskiej szatni. Możesz udać się do stref treningowych!
+Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku?
+
+
+true.
+
+?- go(strefa_wolnych_ciezarow).
+Jesteś w strefie wolnych ciężarów.
+
+Tutaj znajduje się chudy_szczur.
+Tutaj znajduje się wielki_chlop.
+Tutaj znajduje się lawka.
+Tutaj znajduje się swiezak.
+
+true.
+
+?- left_add_weight_bench(20).
+Dodałeś ciężar 20 kg na lewą stronę sztangi.
+Obciążenie na sztandze wynosi: 50 kg.
+Obciążenie na sztandze jest nierówno rozłożone, ale w granicach bezpieczeństwa.
+Różnica w obciążeniu wynosi: 20 kg.
+Ciężary na lewej stronie: [5,20]
+Ciężary na prawej stronie: [5]
+true.
+
+?- right_add_weight_bench(20).
+Dodałeś ciężar 20 kg na prawą stronę sztangi.
+Obciążenie na sztandze wynosi: 70 kg.
+Obciążenie na sztandze jest równo rozłożone!
+true.
+
+?- do_bench_press.
+Podnosisz sztangę o obciążeniu 25+25+20 kg.
+Gratulacje udało ci się wykonać trening!
+Gratulacje! Wygrałeś!
+Twój wynik to: 130
+
+Dziękujemy za grę!
