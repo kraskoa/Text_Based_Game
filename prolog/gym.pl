@@ -3,7 +3,6 @@
 :- dynamic i_am_at/1, at/2, holding/1, strength/1, lifted/2, money/1, stage/1, score/1, weight_inventory/1, bench_left/1, bench_right/1, npc/1, interaction_count/2.
 :- retractall(at(_, _)), retractall(i_am_at(_)), retractall(holding(_)), retractall(strength(_)), retractall(lifted(_, _)), retractall(weight_inventory(_)), retractall(bench_left(_)), retractall(bench_right(_)).
 :- discontiguous talk/1.
-% :- assert(weight_inventory(_{})).
 
 /* Początkowa lokalizacja */
 i_am_at(dom).
@@ -11,7 +10,6 @@ i_am_at(dom).
 /* Początkowa siła, podniesione ciężary oraz pieniądze */
 random_strength_and_money :-
         random(50, 101, S),  % Siła w zakresie 50-150 kg
-        % do testów
         random(0, 151, M),
         assert(strength(S)),
         assert(money(M)),
@@ -562,40 +560,6 @@ idz_do_prysznica :-
 /* Deklaracja dynamicznego faktu */
 :- dynamic prysznic_sprawdzony/0.
 
-
-% /* Stary Trening
-% train(Partia) :-
-%         strength(S),
-%         holding(X),
-%         weight(X, W),
-%         (W =< S -> train_success(Partia, W) ; die), !.
-
-% train(_) :-
-%         write('Nie masz odpowiedniego obciążenia do tego ćwiczenia!'), nl.
-
-% train_success(Partia, W) :-
-%         lifted(Partia, L),
-%         NewL is L + W,
-%         retract(lifted(Partia, L)),
-%         assert(lifted(Partia, NewL)),
-%         write('Podniosłeś '), write(W), write(' kg na '), write(Partia), write('. Łącznie: '), write(NewL), write(' kg.'), nl,
-%         check_goal.
-
-% /* Cele gry
-% check_goal :-
-%         lifted(klatka_piersiowa, P),
-%         lifted(barki, B),
-%         lifted(biceps, C),
-%         (P >= 500, B >= 300, C >= 200 -> write('Gratulacje! Ukończyłeś trening!'), nl, finish ; true).
-
-% /* Wagi sprzętu
-% weight(sztanga, 100).
-% weight(hantle, 50).
-% weight(kettlebell, 30).
-% */
-
-/* Nowy Trening */
-
 /* Używanie nowego systemu ciężarów */
 left_add_weight_bench(X) :-
     i_am_at(strefa_wolnych_ciezarow),
@@ -741,12 +705,6 @@ has_magnesium :-
 % STAGES
 start_stage(X) :-
         X =:= 1 -> (
-                % assert(at(szczur_bojowy, strefa_wolnych_ciezarow)),
-                % assert(at(brunetka, strefa_cardio)),
-                % assert(at(duzy_chlop, strefa_wolnych_ciezarow)),
-                % assert(npc(szczur_bojowy)),
-                % assert(npc(brunetka)),
-                % assert(npc(duzy_chlop)),
                 write('Rozpoczynasz trening na klatę! Rozgladasz się obok sztangi, ale nie ma obok niej żadnych ciężarów.'), nl,
                 write('Pora zebrać cięzary!'), nl,
                 write('Rozejrzyj się po siłowni i przynieś ciężary, a następnie je nałóż!'), nl,
@@ -814,10 +772,6 @@ die :-
     ;
         finish
     ).
-
-% die :-
-%         write('Podjąłeś próbę podniesienia zbyt dużego ciężaru i odniosłeś kontuzję. Koniec gry.'), nl,
-%         finish(0).
 
 die_steroid :-
         write('To był twój ostatni trening. Zmarłeś na skutek przedawkowania sterydów.'), nl,
