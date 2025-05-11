@@ -1,4 +1,3 @@
--- NPCs.hs
 module NPCs where
 
 import DataTypes

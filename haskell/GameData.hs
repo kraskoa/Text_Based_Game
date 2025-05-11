@@ -1,4 +1,3 @@
--- GameData.hs
 module GameData where
 
 import DataTypes
@@ -8,8 +7,8 @@ import qualified Data.Set as S
 -- Initial player stats (randomness will be handled in Main or Actions)
 initialPlayer :: Player
 initialPlayer = Player
-    { strength = 0 -- Will be set randomly
-    , money = 0    -- Will be set randomly
+    { strength = 0 
+    , money = 0   
     , inventory = S.empty
     , weightInventory = M.empty
     , wearingSportswear = False
@@ -52,7 +51,6 @@ initialNpcLocations = M.fromList
     , (CzlowiekSzczuply, StrefaMaszyn)
     , (DuzyChlop, StrefaMaszyn)
     , (SzczurBojowy, StrefaMaszyn)
-    -- Swiezak appears later, so not in initialNpcLocations but added to activeNPCs/npcLocations at stage 2
     ]
 
 initialActiveNPCs :: S.Set NPC
@@ -80,17 +78,14 @@ paths =
     , (StrefaCardio, SzatniaMeska)
     , (SzatniaMeska, StrefaMaszyn)
     , (StrefaMaszyn, SzatniaMeska)
-    , (SzatniaDamska, StrefaMaszyn) -- Path from SzatniaDamska to StrefaMaszyn (as per Prolog)
-    , (StrefaMaszyn, SzatniaDamska) -- And back
-    , (SzatniaDamska, StrefaCardio) -- Path from SzatniaDamska to StrefaCardio
-    , (StrefaCardio, SzatniaDamska) -- And back
-    -- Note: Prolog has SzatniaDamska <-> StrefaWolnychCiezarow, SzatniaDamska <-> StrefaCardio (duplicate?)
-    -- and StrefaCardio <-> StrefaMaszyn.
-    -- Let's ensure consistency with the provided Prolog:
+    , (SzatniaDamska, StrefaMaszyn) 
+    , (StrefaMaszyn, SzatniaDamska) 
+    , (SzatniaDamska, StrefaCardio) 
+    , (StrefaCardio, SzatniaDamska) 
     , (SzatniaDamska, StrefaWolnychCiezarow)
     , (StrefaWolnychCiezarow, SzatniaDamska)
     , (StrefaCardio, StrefaMaszyn)
-    , (StrefaMaszyn, StrefaCardio) -- Added for symmetry if not already present
+    , (StrefaMaszyn, StrefaCardio) 
     , (SzatniaMeska, Lazienka)
     , (Lazienka, SzatniaMeska)
     ]
@@ -103,7 +98,7 @@ itemPrices :: M.Map Item Int
 itemPrices = M.fromList
     [ (Monster, 10)
     , (Przedtreningowka, 20)
-    , (Karnet, 40)          -- Price if buying, though one might be at home
+    , (Karnet, 40)          
     , (MalaStrzykawka, 30)
     , (DuzaStrzykawka, 50)
     ]
@@ -139,8 +134,7 @@ locationDescriptions NieczynnyPrysznic = ["Jesteś przy nieczynnym prysznicu."]
 -- Special Death is Maybe String. If Just "reason", player dies.
 consumableEffects :: Item -> Maybe (Int, String, Maybe String)
 consumableEffects Monster          = Just (3, "Twoja siła wzrosła o 3!", Nothing)
-consumableEffects Dzik             = Just (5, "Twoja siła wzrosła o 5!", Nothing) -- Prolog implies +10 but text says "przypływ siły", I'll use a moderate value
+consumableEffects Dzik             = Just (5, "Twoja siła wzrosła o 5!", Nothing) 
 consumableEffects Przedtreningowka = Just (10, "Twoja siła wzrosła o 10!", Nothing)
-consumableEffects MalaStrzykawka   = Just (30, "Twoja siła wzrosła o 30!", Just "To był twój ostatni trening. Zmarłeś na skutek przedawkowania sterydów.") -- Random death in Prolog
-consumableEffects DuzaStrzykawka   = Just (60, "Twoja siła wzrosła o 60!", Just "To był twój ostatni trening. Zmarłeś na skutek przedawkowania sterydów.") -- Random death in Prolog
-consumableEffects _                = Nothing -- Not consumable or no direct effect
+consumableEffects MalaStrzykawka   = Just (30, "Twoja siła wzrosła o 30!", Just "To był twój ostatni trening. Zmarłeś na skutek przedawkowania sterydów.") 
+consumableEffects DuzaStrzykawka   = Just (60, "Twoja siła wzrosła o 60!", Just "To był twój ostatni trening. Zmarłeś na skutek przedawkowania sterydów.") 

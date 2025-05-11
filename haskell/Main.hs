@@ -1,9 +1,8 @@
--- Main.hs
 {-# LANGUAGE FlexibleContexts #-}
 import DataTypes
 import GameData
 import Actions
-import NPCs -- For handleTalk
+import NPCs
 import Utils
 
 import Control.Monad.State
@@ -18,8 +17,8 @@ import System.Exit (exitSuccess)
 -- Initialize game with random strength and money
 initializeGame :: IO GameState
 initializeGame = do
-    initialStr <- getStdRandom (randomR (50, 100)) -- Prolog: random(50, 101, S) -> S in [50, 100]
-    initialMon <- getStdRandom (randomR (0, 150))  -- Prolog: random(0, 151, M) -> M in [0, 150]
+    initialStr <- getStdRandom (randomR (50, 100))
+    initialMon <- getStdRandom (randomR (0, 150)) 
     let player = initialPlayer { strength = initialStr, money = initialMon }
     return $ initialGameState player
 
@@ -29,7 +28,7 @@ parseCommand input =
     let tokens = words $ map toLower input
     in case tokens of
         ["go", loc] -> Go loc
-        ["go", loc1, loc2] -> Go (loc1 ++ " " ++ loc2) -- For two-word locations like "strefa cardio"
+        ["go", loc1, loc2] -> Go (loc1 ++ " " ++ loc2) 
         ["go", loc1, loc2, loc3] -> Go (loc1 ++ " " ++ loc2 ++ " " ++ loc3)    
         ["take", item] -> Take item
         ["take", item1, item2] -> Take (item1 ++ " " ++ item2)
@@ -59,11 +58,11 @@ parseCommand input =
             case stringToWeight wStr of Just w -> LeftAddWeight w; _ -> Unknown input
         ["right_add", wStr] | all isDigit wStr ->
             case stringToWeight wStr of Just w -> RightAddWeight w; _ -> Unknown input
-        ["remove_all_weights"] -> RemoveAllWeightsBench -- Shortened from Prolog for ease
+        ["remove_all_weights"] -> RemoveAllWeightsBench 
         ["remove_weights"] -> RemoveAllWeightsBench
         ["check_bench"] -> CheckBench
         ["do_bench_press"] -> DoBenchPress
-        ["komplementuj"] -> KomplementujRecepcjonistke -- shorthand
+        ["komplementuj"] -> KomplementujRecepcjonistke 
         ["komplementuj", "recepcjonistke"] -> KomplementujRecepcjonistke
 
 

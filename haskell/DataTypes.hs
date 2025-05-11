@@ -1,4 +1,3 @@
--- DataTypes.hs
 {-# LANGUAGE DeriveGeneric #-}
 
 module DataTypes where

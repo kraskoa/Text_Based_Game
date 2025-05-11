@@ -1,4 +1,3 @@
-
 module Utils where
 
 import DataTypes
