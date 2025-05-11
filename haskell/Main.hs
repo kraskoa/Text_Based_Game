@@ -105,9 +105,6 @@ processCommand cmd = do
 gameLoop :: StateT GameState IO ()
 gameLoop = do
     gs <- get
-    -- Check for game over conditions not tied to specific actions (e.g. if score or stage triggers it)
-    -- (Currently, game over is handled within actions like DoBenchPress, Consume, Go SzatniaDamska)
-
     liftIO $ putStr "> "
     liftIO $ hFlush stdout
     line <- liftIO getLine

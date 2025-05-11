@@ -38,10 +38,8 @@ initialWorldItems :: M.Map Item Location
 initialWorldItems = M.fromList
     [ (StrojSportowy, Dom)
     , (Woda, Dom)
-    , (Karnet, Dom) -- Player starts with a karnet at home in Prolog, but also can buy one. Let's assume it's at home.
+    , (Karnet, Dom) 
     , (CzerwonyBidon, Lazienka)
-    -- Talerze_10_kg at strefa_cardio is mentioned but seems to be obtained via Brunetka interaction.
-    -- The weight items themselves are not "at" locations like regular items; they are obtained from NPCs.
     ]
 
 -- Initial locations of NPCs
@@ -136,7 +134,6 @@ locationDescriptions gs NieczynnyPrysznic = ["Jesteś przy nieczynnym prysznicu.
 
 
 -- Consumable item effects: (Strength gain, Message, Special Death (e.g. steroid overdose))
--- Special Death is Maybe String. If Just "reason", player dies.
 consumableEffects :: Item -> Maybe (Int, String, Maybe String)
 consumableEffects Monster          = Just (3, "Twoja siła wzrosła o 3!", Nothing)
 consumableEffects Dzik             = Just (5, "Twoja siła wzrosła o 5!", Nothing) 

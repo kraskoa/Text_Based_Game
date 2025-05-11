@@ -168,8 +168,7 @@ locationDisplayName StrefaCardio = "strefa cardio"
 locationDisplayName StrefaMaszyn = "strefa maszyn"
 locationDisplayName Lazienka = "lazienka"
 
--- Function to find Item by its string name (case-insensitive partial match for convenience)
--- For a production game, a more robust parser or exact matching might be preferred.
+
 stringToItem :: String -> Maybe Item
 stringToItem s
     | "stroj" `isInfixOf` ls = Just StrojSportowy
@@ -227,7 +226,6 @@ stringToLocation s
         toLower = Data.Char.toLower
 
 -- Weight items (not regular items, but things that can be in weightInventory or on bench)
--- These are distinct from `Item` enum to avoid confusion with takeable items.
 validWeights :: [Weight]
 validWeights = [5, 10, 15, 20, 25]
 
