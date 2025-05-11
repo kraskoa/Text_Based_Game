@@ -30,6 +30,7 @@ parseCommand input =
     in case tokens of
         ["go", loc] -> Go loc
         ["go", loc1, loc2] -> Go (loc1 ++ " " ++ loc2) -- For two-word locations like "strefa cardio"
+        ["go", loc1, loc2, loc3] -> Go (loc1 ++ " " ++ loc2 ++ " " ++ loc3)    
         ["take", item] -> Take item
         ["take", item1, item2] -> Take (item1 ++ " " ++ item2)
         ["drop", item] -> Drop item

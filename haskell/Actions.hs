@@ -357,6 +357,8 @@ handleAddWeightToBench sideSetter weight sideName = do
             if not canRemove
             then return ["Nie masz ciężaru " ++ show weight ++ "kg w ekwipunku."]
             else do
+                gs <- get
+                let benchSt = benchState gs
                 let newBenchSt = sideSetter benchSt [weight]
                 put gs { benchState = newBenchSt }
                 checkMsgs <- handleCheckBenchInternal
