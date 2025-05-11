@@ -54,17 +54,22 @@ interactPodejrzanyTyp = return
 
 interactChudySzczur :: GameAction
 interactChudySzczur = do
-    -- Assuming Chudy Szczur can only be talked to once for weights.
-    -- We can add a flag to GameState like `chudySzczurTalked :: Bool`
-    -- For now, let's assume he always gives weights if he's active.
-    -- In Prolog, he's always there. We might want to make him disappear or change dialogue after.
-    msgs <- addWeightsToPlayer [5, 5]
-    return $
-        [ "Ty: Ej, mały, potrzebuję tych talerzy 5kg, mogę je zabrać?"
-        , "Chudy szczur: (piszczy nerwowo) Tylko... nie bij mnie! Bierz, co chcesz, i znikaj!"
-        , "Ty: Spoko, luz. Tylko mi je podaj, i będę się zwijał."
-        , "Chudy szczur: (podaje talerze) Masz, i już mnie nie zaczepiaj!"
-        ] ++ msgs ++ ["Dodałeś do swojego ekwipunku ciężary: 5kg i 5kg."]
+    gs <- get
+    if chudySzczurTalked gs
+      then return
+        [ "Chudy szczur: Już ci dałem moje talerze! Daj mi spokój, dobrze?"
+        , "Ty: Spoko, nie przeszkadzam więcej."
+        ]
+      else do
+        msgs <- addWeightsToPlayer [5, 5]
+        put gs { chudySzczurTalked = True }
+        return
+            ([ "Ty: Ej, mały, potrzebuję tych talerzy 5kg, mogę je zabrać?"
+             , "Chudy szczur: (piszczy nerwowo) Tylko... nie bij mnie! Bierz, co chcesz, i znikaj!"
+             , "Ty: Spoko, luz. Tylko mi je podaj, i będę się zwijał."
+             , "Chudy szczur: (podaje talerze) Masz, i już mnie nie zaczepiaj!"
+             ] ++ msgs ++ ["Dodałeś do swojego ekwipunku ciężary: 5kg i 5kg."]
+            )
 
 
 interactBrunetka :: GameAction
@@ -73,39 +78,65 @@ interactBrunetka = return
     , "Brunetka: Zostaw mnie, mam chłopaka!"
     , "Ty: Źle zrozumiałaś, ja tylko chciałem..."
     , "Brunetka: Mam wezwać ochronę? Spadaj!"
-    -- Note: Prolog has `at(talerze_10_kg, strefa_cardio)`. Interaction doesn't give them.
-    -- This implies player might need another way or this NPC is a red herring for 10kg plates.
-    -- The game seems to get weights from other NPCs who *give* them.
     ]
 
 interactCzlowiekSzczuply :: GameAction
 interactCzlowiekSzczuply = do
-    msgs <- addWeightsToPlayer [15, 15]
-    return $
-        [ "Ty: Stary, te talerze 15kg... mogę je pożyczyć? Na chwilę?"
-        , "Człowiek szczupły: (wzrusza ramionami) No dobra, ale szybko oddaj. Ja tu jeszcze muszę poćwiczyć."
-        , "Ty: Jasne, jasne, tylko je wezmę. Dzięki!"
-        , "Człowiek szczupły: Tylko ich nie zgub, bo będziesz miał ze mną do czynienia!"
-        ] ++ msgs ++ ["Dodałeś do swojego ekwipunku ciężary: 15kg i 15kg."]
+    gs <- get
+    if czlowiekSzczuplyTalked gs
+      then return
+        [ "Człowiek szczupły: Już ci pożyczyłem talerze! Oddaj je, jak skończysz."
+        , "Ty: Jasne, dzięki jeszcze raz!"
+        ]
+      else do
+        msgs <- addWeightsToPlayer [15, 15]
+        put gs { czlowiekSzczuplyTalked = True }
+        return
+            ([ "Ty: Stary, te talerze 15kg... mogę je pożyczyć? Na chwilę?"
+            , "Człowiek szczupły: (wzrusza ramionami) No dobra, ale szybko oddaj. Ja tu jeszcze muszę poćwiczyć."
+            , "Ty: Jasne, jasne, tylko je wezmę. Dzięki!"
+            , "Człowiek szczupły: Tylko ich nie zgub, bo będziesz miał ze mną do czynienia!"
+            ] ++ msgs ++ ["Dodałeś do swojego ekwipunku ciężary: 15kg i 15kg."]
+            )
 
 interactSzczurBojowy :: GameAction
 interactSzczurBojowy = do
-    msgs <- addWeightsToPlayer [20, 20]
-    return $
-        [ "Ty: Ej, byczku, te 20 kilo... mogę je zabrać?"
-        , "Szczur bojowy: Jasne, stary, bierz. I tak mi się już nie przydadzą."
-        , "Ty: Dzięki, jesteś wielki!"
-        , "Szczur bojowy: Tylko uważaj, żebyś sobie krzywdy nie zrobił. To ciężkie żelastwo."
-        ] ++ msgs ++ ["Dodałeś do swojego ekwipunku ciężary: 20kg i 20kg."]
+    gs <- get
+    if szczurBojowyTalked gs
+      then return
+        [ "Szczur bojowy: Już oddałem ci swoje talerze. Teraz muszę odpocząć!"
+        , "Ty: Dzięki jeszcze raz!"
+        ]
+      else do
+        msgs <- addWeightsToPlayer [20, 20]
+        put gs { szczurBojowyTalked = True }
+        return
+            ([ "Ty: Ej, byczku, te 20 kilo... mogę je zabrać?"
+            , "Szczur bojowy: Jasne, stary, bierz. I tak mi się już nie przydadzą."
+            , "Ty: Dzięki, jesteś wielki!"
+            , "Szczur bojowy: Tylko uważaj, żebyś sobie krzywdy nie zrobił. To ciężkie żelastwo."
+            ] ++ msgs ++ ["Dodałeś do swojego ekwipunku ciężary: 20kg i 20kg."]
+            )
+
+
 
 
 interactDuzyChlop :: GameAction
 interactDuzyChlop = do
-    msgs <- addWeightsToPlayer [25, 25]
-    return $
-        [ "Ty: Mogę zabrać talerze 25 kg?"
-        , "Duży chłop: Spoko, nie ma sprawy, już ich nie używam!"
-        ] ++ msgs ++ ["Dodałeś do swojego ekwipunku ciężary: 25kg i 25kg."]
+    gs <- get
+    if duzyChlopTalked gs
+      then return
+        [ "Duży chłop: Już ci dałem talerze 25kg. Nie mam więcej!"
+        , "Ty: Spoko, dzięki!"
+        ]
+      else do
+        msgs <- addWeightsToPlayer [25, 25]
+        put gs { duzyChlopTalked = True }
+        return
+            ([ "Ty: Mogę zabrać talerze 25 kg?"
+            , "Duży chłop: Spoko, nie ma sprawy, już ich nie używam!"
+            ] ++ msgs ++ ["Dodałeś do swojego ekwipunku ciężary: 25kg i 25kg."]
+            )
 
 interactWielkiChlop :: GameAction
 interactWielkiChlop = return

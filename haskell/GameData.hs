@@ -26,7 +26,11 @@ initialGameState player = GameState
     , gameStage = 0
     , gymPassUsed = False
     , showerChecked = False
-    , benchState = BenchState { benchLeft = [], benchRight = [], benchOccupied = False } -- Initialize BenchState
+    , benchState = BenchState { benchLeft = [], benchRight = [], benchOccupied = False }
+    , chudySzczurTalked = False
+    , czlowiekSzczuplyTalked = False
+    , szczurBojowyTalked = False
+    , duzyChlopTalked = False
     }
 
 -- Initial locations of items in the world

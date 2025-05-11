@@ -89,10 +89,13 @@ data GameState = GameState
     , activeNPCs        :: S.Set NPC           -- NPCs currently active/present
     , liftedStats       :: M.Map MuscleGroup Int
     , gameStage         :: Int                 -- Current stage of the main quest
-    -- score             :: Int -- Prolog `score` seems unused, can add if needed
     , gymPassUsed       :: Bool                -- Replaces `szatnia_wejscie`
     , showerChecked     :: Bool                -- Replaces `prysznic_sprawdzony`
     , benchState        :: BenchState          -- Add this field
+    , chudySzczurTalked :: Bool
+    , czlowiekSzczuplyTalked :: Bool
+    , szczurBojowyTalked :: Bool
+    , duzyChlopTalked :: Bool
     } deriving (Show, Generic)
 
 -- For parsing commands
