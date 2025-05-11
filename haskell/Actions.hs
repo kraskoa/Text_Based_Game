@@ -20,7 +20,7 @@ handleLook :: GameAction
 handleLook = do
     gs <- get
     let loc = currentLocation gs
-    let desc = locationDescriptions loc
+    let desc = locationDescriptions gs loc
     let itemsHere = M.filter (== loc) (worldItems gs)
     let npcsHere = S.filter (\n -> M.lookup n (npcLocations gs) == Just loc && S.member n (activeNPCs gs)) (S.fromList [minBound..maxBound])
 

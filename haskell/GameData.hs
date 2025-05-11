@@ -114,20 +114,21 @@ buyableAt = M.fromList
     ]
 
 -- Descriptions of locations
-locationDescriptions :: Location -> [String]
-locationDescriptions Dom = ["Jesteś w domu. Musisz zebrać ekwipunek na siłownię!"]
-locationDescriptions Parking = ["Jesteś na parkingu przed siłownią. Możesz iść do siłowni!"]
-locationDescriptions Recepcja = ["Jesteś w recepcji. Możesz kupić suplementy i karnet!"]
-locationDescriptions SzatniaMeska =
-    [ "Jesteś w męskiej szatni. Możesz udać się do stref treningowych!"
-    , "Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku? (go nieczynny_prysznic)"
-    ]
-locationDescriptions SzatniaDamska = ["Jesteś w damskiej szatni. Możesz udać się do stref treningowych!"]
-locationDescriptions StrefaMaszyn = ["Jesteś w strefie maszyn."]
-locationDescriptions StrefaWolnychCiezarow = ["Jesteś w strefie wolnych ciężarów."]
-locationDescriptions StrefaCardio = ["Jesteś w strefie cardio."]
-locationDescriptions Lazienka = ["Jesteś w łazience."]
-locationDescriptions NieczynnyPrysznic = ["Jesteś przy nieczynnym prysznicu."]
+locationDescriptions :: GameState -> Location -> [String]
+locationDescriptions gs Dom = ["Jesteś w domu. Musisz zebrać ekwipunek na siłownię!"]
+locationDescriptions gs Parking = ["Jesteś na parkingu przed siłownią. Możesz iść do siłowni!"]
+locationDescriptions gs Recepcja = ["Jesteś w recepcji. Możesz kupić suplementy i karnet!"]
+locationDescriptions gs SzatniaMeska =
+    ["Jesteś w męskiej szatni. Możesz udać się do stref treningowych!"]
+    ++ if not (showerChecked gs)
+       then ["Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku? (go nieczynny_prysznic)"]
+       else []
+locationDescriptions gs SzatniaDamska = ["Jesteś w damskiej szatni. Możesz udać się do stref treningowych!"]
+locationDescriptions gs StrefaMaszyn = ["Jesteś w strefie maszyn."]
+locationDescriptions gs StrefaWolnychCiezarow = ["Jesteś w strefie wolnych ciężarów."]
+locationDescriptions gs StrefaCardio = ["Jesteś w strefie cardio."]
+locationDescriptions gs Lazienka = ["Jesteś w łazience."]
+locationDescriptions gs NieczynnyPrysznic = ["Jesteś przy nieczynnym prysznicu."]
 
 
 -- Consumable item effects: (Strength gain, Message, Special Death (e.g. steroid overdose))
