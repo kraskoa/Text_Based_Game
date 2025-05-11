@@ -335,7 +335,7 @@ handleTakeBench = do
                 put gs { gameStage = 1, benchState = newBenchSt }
                 msgs <- startStage 1
                 return $ ["Zająłeś ławkę."] ++ msgs
-            else if gameStage gs `elem` [2,4]
+            else if gameStage gs `elem` [3,5]
             then do
                 let newBenchSt = benchSt { benchOccupied = True }
                 put gs { benchState = newBenchSt }
