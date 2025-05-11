@@ -61,17 +61,18 @@ handleGo locNameStr = do
                         return []
 
                     NieczynnyPrysznic | currentLoc == SzatniaMeska -> handleIdzDoPrysznica
+                    
+                    loc | loc == StrefaCardio && gameStage gs == 4 -> do 
+                        put gs { gameStage = 5, currentLocation = loc }
+                        lookMessages <- handleLook
+                        return $ ["Przechodzisz do strefy cardio. Zapatrujesz się na ćwiczące osoby.",
+                                  "Nawet nie zauważasz kiedy mija czas na kolejną serię!"] ++ lookMessages
 
                     loc | loc `elem` [StrefaWolnychCiezarow, StrefaCardio, StrefaMaszyn] ->
                         if not (wearingSportswear pState)
                         then return ["Nie możesz iść na trening bez stroju sportowego! Przebierz się!"]
                         else moveToLocation loc ["Wszedłeś do: " ++ locationDisplayName loc]
 
-                    loc | loc == StrefaCardio && gameStage gs == 4 -> do 
-                        put gs { gameStage = 5, currentLocation = loc }
-                        lookMessages <- handleLook
-                        return $ ["Przechodzisz do strefy cardio. Zapatrujesz się na ćwiczące się osoby.",
-                                  "Nawet nie zauważasz kiedy mija czas na kolejną serię!"] ++ lookMessages
 
                     _ -> moveToLocation targetLoc ["Poszedłeś do: " ++ locationDisplayName targetLoc]
 
