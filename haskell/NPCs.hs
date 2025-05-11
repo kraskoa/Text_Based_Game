@@ -2,7 +2,7 @@ module NPCs where
 
 import DataTypes
 import GameData
-import Actions -- For startStage, addWeightsToPlayer, handleFinish
+import Actions
 import Utils
 import Control.Monad.State
 import qualified Data.Map as M
@@ -21,7 +21,7 @@ handleTalk npcNameStr = do
         Just npc ->
             if not (S.member npc (activeNPCs gs) && M.lookup npc (npcLocations gs) == Just currentLoc)
             then return ["Nie widzisz tutaj osoby: " ++ npcDisplayName npc ++ "."]
-            else -- NPC is here and active, proceed with interaction
+            else
                 case npc of
                     Recepcjonistka -> interactRecepcjonistka
                     PodejrzanyTyp  -> interactPodejrzanyTyp
@@ -62,7 +62,8 @@ interactChudySzczur = do
         ]
       else do
         msgs <- addWeightsToPlayer [5, 5]
-        put gs { chudySzczurTalked = True }
+        gs_new <- get
+        put gs_new { chudySzczurTalked = True }
         return
             ([ "Ty: Ej, mały, potrzebuję tych talerzy 5kg, mogę je zabrać?"
              , "Chudy szczur: (piszczy nerwowo) Tylko... nie bij mnie! Bierz, co chcesz, i znikaj!"
@@ -90,7 +91,8 @@ interactCzlowiekSzczuply = do
         ]
       else do
         msgs <- addWeightsToPlayer [15, 15]
-        put gs { czlowiekSzczuplyTalked = True }
+        gs_new <- get
+        put gs_new { czlowiekSzczuplyTalked = True }
         return
             ([ "Ty: Stary, te talerze 15kg... mogę je pożyczyć? Na chwilę?"
             , "Człowiek szczupły: (wzrusza ramionami) No dobra, ale szybko oddaj. Ja tu jeszcze muszę poćwiczyć."
@@ -109,7 +111,8 @@ interactSzczurBojowy = do
         ]
       else do
         msgs <- addWeightsToPlayer [20, 20]
-        put gs { szczurBojowyTalked = True }
+        gs_new <- get
+        put gs_new { szczurBojowyTalked = True }
         return
             ([ "Ty: Ej, byczku, te 20 kilo... mogę je zabrać?"
             , "Szczur bojowy: Jasne, stary, bierz. I tak mi się już nie przydadzą."
@@ -131,7 +134,8 @@ interactDuzyChlop = do
         ]
       else do
         msgs <- addWeightsToPlayer [25, 25]
-        put gs { duzyChlopTalked = True }
+        gs_new <- get
+        put gs_new { duzyChlopTalked = True }
         return
             ([ "Ty: Mogę zabrać talerze 25 kg?"
             , "Duży chłop: Spoko, nie ma sprawy, już ich nie używam!"
@@ -150,14 +154,12 @@ interactSwiezak = do
     let pState = playerState gs
     let currentStage = gameStage gs
 
-    if currentStage == 2 then -- Swiezak is asking for bidon
+    if currentStage == 2 then
         if S.member CzerwonyBidon (inventory pState) then do
-            -- Player has the bidon and gives it
             let newPState = pState { inventory = S.delete CzerwonyBidon (inventory pState) }
-            -- Don't add Expired Przedtreningowka based on stage 3 text
             put gs { playerState = newPState, gameStage = 3 }
 
-            stage3Msgs <- startStage 3 -- This will generate the "dostałeś przeterminowaną..."
+            stage3Msgs <- startStage 3
             return $
                 [ "Ty: Cześć, stary, znalazłem twój czerwony bidon w łazience."
                 , "Swiezak: Dzięki, stary! Nie wiem co bym bez ciebie zrobił!"
@@ -169,7 +171,7 @@ interactSwiezak = do
                 , "Ty: Niestety, jeszcze go nie znalazłem."
                 , "Swiezak: Powodzenia!"
                 ]
-    else if currentStage >= 3 then -- After bidon quest
+    else if currentStage >= 3 then 
         return ["Swiezak: Dzięki jeszcze raz za pomoc z bidonem! Jak trening idzie?"]
-    else -- Should not happen if Swiezak is only active from stage 2
+    else 
         return ["Swiezak patrzy na ciebie pytająco."]
