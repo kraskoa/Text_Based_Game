@@ -61,7 +61,7 @@ handleGo locNameStr = do
                         return []
 
                     NieczynnyPrysznic | currentLoc == SzatniaMeska -> handleIdzDoPrysznica
-                    
+
                     loc | loc == StrefaCardio && gameStage gs == 4 -> do 
                         put gs { gameStage = 5, currentLocation = loc }
                         lookMessages <- handleLook
@@ -458,10 +458,8 @@ handleDoBenchPress = do
                     let newLiftedKlatka = (fromMaybe 0 $ M.lookup KlatkaPiersiowa (liftedStats gs)) + totalWeightToLift
                     let newLiftedStats = M.insert KlatkaPiersiowa newLiftedKlatka (liftedStats gs)
                     let nextStage = currentStg + 1
-                    let newBenchSt = benchSt { benchLeft = [], benchRight = [], benchOccupied = False }
-
+                    let newBenchSt = benchSt { benchOccupied = False }
                     put gs { gameStage = nextStage, liftedStats = newLiftedStats, benchState = newBenchSt }
-                    _ <- addWeightsToPlayer (bl ++ br)
                     stageMsgs <- startStage nextStage
                     return $ messages ++ ["Udało się! Podniosłeś " ++ show totalWeightToLift ++ " kg na klatę!"] ++ stageMsgs
                 else do
