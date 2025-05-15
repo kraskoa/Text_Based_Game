@@ -4,7 +4,7 @@ import DataTypes
 import qualified Data.Map as M
 import qualified Data.Set as S
 
--- Initial player stats (randomness will be handled in Main or Actions)
+-- Initial player stats 
 initialPlayer :: Player
 initialPlayer = Player
     { strength = 0 
@@ -133,7 +133,7 @@ locationDescriptions gs Lazienka = ["Jesteś w łazience."]
 locationDescriptions gs NieczynnyPrysznic = ["Jesteś przy nieczynnym prysznicu."]
 
 
--- Consumable item effects: (Strength gain, Message, Special Death (e.g. steroid overdose))
+-- Consumable item effects:
 consumableEffects :: Item -> Maybe (Int, String, Maybe String)
 consumableEffects Monster          = Just (3, "Twoja siła wzrosła o 3!", Nothing)
 consumableEffects Dzik             = Just (5, "Twoja siła wzrosła o 5!", Nothing) 
