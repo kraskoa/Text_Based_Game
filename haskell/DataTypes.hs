@@ -32,9 +32,9 @@ data Item
     | MalaStrzykawka
     | DuzaStrzykawka
     | CzerwonyBidon
-    | Dzik -- Energy drink found in shower
-    | Magnesium -- Mentioned in Prolog `has_magnesium` but not fully implemented there
-    -- Weights are handled separately in weightInventory, but can be conceptualized
+    | Dzik 
+    | Magnesium 
+    -- Weights are handled separately 
     | Talerz5kg
     | Talerz10kg
     | Talerz15kg
@@ -118,7 +118,7 @@ data Command
     | DoBenchPress
     | TakeBench
     | KomplementujRecepcjonistke
-    -- | IdzDoPrysznica -- This is handled by Go NieczynnyPrysznic
+    -- | IdzDoPrysznica 
     | ShowWeightInventory
     | Help
     | Quit
