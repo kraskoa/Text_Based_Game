@@ -341,7 +341,7 @@ handleTakeBench = do
                 let newBenchSt = benchSt { benchOccupied = True }
                 put gs { benchState = newBenchSt }
                 return ["Wróciłeś do ławki, gotowy na kolejną serię. Nałóż ciężary."]
-            else return ["Nie możesz teraz zająć ławki (stan gry: " ++ show (gameStage gs) ++ ")."]
+            else return ["Nie możesz teraz zająć ławki, spróbuj wykonać inne zadanie."]
 
 handleAddWeightToBench :: (BenchState -> [Weight] -> BenchState) -> Weight -> String -> GameAction
 handleAddWeightToBench sideSetter weight sideName = do
@@ -352,7 +352,7 @@ handleAddWeightToBench sideSetter weight sideName = do
     if currentLocation gs /= StrefaWolnychCiezarow
     then return ["Musisz być w strefie wolnych ciężarów."]
     else if not (benchOccupied benchSt) || not (gameStage gs `elem` [1,3,5])
-        then return ["Musisz najpierw zająć ławkę i być w trakcie przygotowania do serii (etap 1, 3 lub 5)."]
+        then return ["Musisz najpierw zająć ławkę i być w trakcie przygotowania do serii."]
         else do
             canRemove <- removeWeightsFromPlayer [weight]
             if not canRemove
