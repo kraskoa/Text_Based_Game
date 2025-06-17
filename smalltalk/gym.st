@@ -425,7 +425,7 @@ komplementujRecepcjonistke
 !
 
 check_money
-    Transcript show: 'Masz '; show: money; show: ' zł na koncie.'; cr.
+    Transcript show: 'Masz '; show: money asString; show: ' zł na koncie.'; cr.
 !
 
 buy: itemNameSymbol
