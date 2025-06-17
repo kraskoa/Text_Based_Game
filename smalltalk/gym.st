@@ -25,7 +25,7 @@ initializeStaticData
     paths at: #parking put: (#(#dom #recepcja) asSet).
     paths at: #recepcja put: (#(#parking #szatnia_meska #szatnia_damska) asSet).
     paths at: #szatnia_meska put: (#(#recepcja #nieczynny_prysznic #strefa_wolnych_ciezarow #strefa_cardio #strefa_maszyn #lazienka) asSet).
-    paths at: #nieczynny_prysznic put: (#(#szatnia_meska) asSet). "This leads to a special action, not a direct move"
+    "paths at: #nieczynny_prysznic put: (#(#szatnia_meska) asSet). This leads to a special action, not a direct move"
     paths at: #szatnia_damska put: (#(#recepcja #strefa_maszyn #strefa_cardio #strefa_wolnych_ciezarow) asSet).
     paths at: #strefa_wolnych_ciezarow put: (#(#szatnia_meska #szatnia_damska) asSet).
     paths at: #strefa_cardio put: (#(#szatnia_meska #szatnia_damska #strefa_maszyn) asSet).
@@ -367,7 +367,7 @@ consume: itemNameSymbol
 
     strengthGain := 0.
     itemNameSymbol = #monster ifTrue: [strengthGain := 3].
-    itemNameSymbol = #dzik ifTrue: [strengthGain := 5]. "Prolog has dzik giving 5, but comment suggests 10 in shower"
+    itemNameSymbol = #dzik ifTrue: [strengthGain := 5]. 
     itemNameSymbol = #przedtreningowka ifTrue: [strengthGain := 10].
     itemNameSymbol = #mala_strzykawka ifTrue: [strengthGain := 30].
     itemNameSymbol = #duza_strzykawka ifTrue: [strengthGain := 60].
@@ -380,14 +380,13 @@ consume: itemNameSymbol
     heldItems remove: itemNameSymbol.
     Transcript show: 'Spożywasz '; show: itemNameSymbol; show: '.'; cr.
     self increaseStrength: strengthGain.
-    Transcript show: 'Twoja siła wzrosła o '; show: strengthGain; show: '!'; cr.
+    Transcript show: 'Twoja siła wzrosła o '; show: strengthGain asString; show: '!'; cr.
 
     itemNameSymbol = #mala_strzykawka ifTrue: [
-        (randomGenerator nextIntegerBetween: 1 and: 4) = 1 ifTrue: [self dieSteroid].
+        ( (randomGenerator next * 4) floor ) = 0 ifTrue: [self dieSteroid].
         gameOver ifTrue: [^self].
     ].
     itemNameSymbol = #duza_strzykawka ifTrue: [
-        "Prolog random_between(1,1,R) means R is always 1"
         self dieSteroid.
         gameOver ifTrue: [^self].
     ].
@@ -407,7 +406,7 @@ wear: itemNameSymbol
         ^self
     ].
 
-    heldItems remove: #stroj_sportowy. "Prolog implies it's removed from general holding"
+    heldItems remove: #stroj_sportowy.
     wearing := #stroj_sportowy.
     Transcript show: 'Przebrałeś się w strój sportowy!'; cr.
 !
