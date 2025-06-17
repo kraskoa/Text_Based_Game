@@ -449,7 +449,7 @@ buy: itemNameSymbol
         (itemNameSymbol = #mala_strzykawka or: [itemNameSymbol = #duza_strzykawka]) ifTrue: [
             Transcript show: 'Zastanów się dwa razy czy na pewno chcesz jej użyć!'; cr.
         ].
-        Transcript show: 'Pozostało Ci '; show: money; show: ' zł.'; cr.
+        Transcript show: 'Pozostało Ci '; show: money asString; show: ' zł.'; cr.
     ] ifFalse: [
         Transcript show: 'Nie masz wystarczająco pieniędzy!'; cr.
     ].
