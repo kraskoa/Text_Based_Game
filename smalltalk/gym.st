@@ -5,7 +5,7 @@ Object subclass: #GymAdventureGame
     poolDictionaries: ''
     category: 'Games-TextAdventure'
 
-!GymAdventureGame methodsFor: 'initialization' stamp: 'AI 6/2/2025 10:30'!
+!GymAdventureGame methodsFor: 'initialization'!
 initialize
     randomGenerator := Random new.
     gameOver := false.
@@ -24,8 +24,7 @@ initializeStaticData
     paths at: #dom put: (#(#parking) asSet).
     paths at: #parking put: (#(#dom #recepcja) asSet).
     paths at: #recepcja put: (#(#parking #szatnia_meska #szatnia_damska) asSet).
-    paths at: #szatnia_meska put: (#(#recepcja #nieczynny_prysznic #strefa_wolnych_ciezarow #strefa_cardio #strefa_maszyn #lazienka) asSet).
-    "paths at: #nieczynny_prysznic put: (#(#szatnia_meska) asSet). This leads to a special action, not a direct move"
+    paths at: #szatnia_meska put: (#(#recepcja #strefa_wolnych_ciezarow #strefa_cardio #strefa_maszyn #lazienka) asSet).
     paths at: #szatnia_damska put: (#(#recepcja #strefa_maszyn #strefa_cardio #strefa_wolnych_ciezarow) asSet).
     paths at: #strefa_wolnych_ciezarow put: (#(#szatnia_meska #szatnia_damska) asSet).
     paths at: #strefa_cardio put: (#(#szatnia_meska #szatnia_damska #strefa_maszyn) asSet).
@@ -46,14 +45,14 @@ initializeStaticData
 
 initializeGameState
     currentLocation := #dom.
-    strength := 50 + ((randomGenerator next * 51) floor). "50..100"
-    money := (randomGenerator next * 151) floor. "0..150"
+    strength := 50 + ((randomGenerator next * 51) floor).
+    money := (randomGenerator next * 151) floor.
     liftedWeights := Dictionary new.
     liftedWeights at: #klatka_piersiowa put: 0.
     liftedWeights at: #barki put: 0.
     liftedWeights at: #biceps put: 0.
     gameStage := 0.
-    score := 0. "Used to indicate win/loss state at the end"
+    score := 0.
     weightInventory := Dictionary new.
     benchLeftWeights := OrderedCollection new.
     benchRightWeights := OrderedCollection new.
@@ -65,16 +64,14 @@ initializeGameState
 
 initializeWorldItemsAndNPCs
     worldItems := Dictionary new.
-    npcLocations := Dictionary new. "Initialize before use!"
-    allNpcs do: [:npc | npcLocations at: npc put: nil]. "Initialize all NPCs as not being anywhere specific yet unless placed"
-    #(#dom #parking #recepcja #szatnia_meska #nieczynny_prysznic #szatnia_damska #strefa_wolnych_ciezarow #strefa_cardio #strefa_maszyn #lazienka) do: [ :loc |
+    npcLocations := Dictionary new.
+    allNpcs do: [:npc | npcLocations at: npc put: nil].
+    #(#dom #parking #recepcja #szatnia_meska #szatnia_damska #strefa_wolnych_ciezarow #strefa_cardio #strefa_maszyn #lazienka) do: [ :loc |
         worldItems at: loc put: Set new.
     ].
 
     (worldItems at: #dom) addAll: #(#stroj_sportowy #woda #karnet).
     (worldItems at: #lazienka) add: #czerwony_bidon.
-    "Lawka is part of the location, not a takeable item in the Prolog sense of at/2"
-    " (worldItems at: #strefa_wolnych_ciezarow) add: #lawka. "
 
     npcLocations at: #recepcjonistka put: #recepcja.
     npcLocations at: #podejrzany_typ put: #parking.
@@ -84,7 +81,6 @@ initializeWorldItemsAndNPCs
     npcLocations at: #czlowiek_szczuply put: #strefa_maszyn.
     npcLocations at: #duzy_chlop put: #strefa_maszyn.
     npcLocations at: #szczur_bojowy put: #strefa_maszyn.
-    "Swiezak is added dynamically in stage 2"
 !
 
 initializeInteractionCounts
@@ -110,7 +106,6 @@ gameLoop
                 ifTrue: [
                     | argString |
                     argString := commandParts second.
-                    "Try to convert to number if it's a weight, else symbol"
                     (action = #left_add_weight_bench or: [action = #right_add_weight_bench])
                         ifTrue: [argString asNumber]
                         ifFalse: [argString asSymbol]
@@ -167,7 +162,7 @@ die
     response := FileStream stdin nextLine asLowercase.
     (response = 'tak') ifTrue: [
         Transcript show: 'Miałeś niesamowite szczęście.'; cr.
-        ^ self "Continue game"
+        ^ self
     ].
     gameOver := true.
     gameWon := false.
@@ -176,12 +171,12 @@ die
 dieSteroid
     Transcript show: 'To był twój ostatni trening. Zmarłeś na skutek przedawkowania sterydów.'; cr.
     self die.
-    gameOver ifFalse: [ "If player chose not to end game via 'tak' in die"
+    gameOver ifFalse: [
          Transcript show: 'Obok przechodził student WUM idący na siłkę i Cię wskrzesił'; cr.
     ].
 ! !
 
-!GymAdventureGame methodsFor: 'player actions' stamp: 'AI 6/2/2025 10:30'!
+!GymAdventureGame methodsFor: 'player actions'!
 look
     Transcript cr.
     self describeLocation: currentLocation.
@@ -251,8 +246,8 @@ go: destinationSymbol
                 Transcript show: 'Nie masz karnetu! Może chcesz sprawdzić czy skomplementowanie recepcjonistki coś da? (tak/nie)'; cr.
                 response := FileStream stdin nextLine asLowercase.
                 response = 'tak' ifTrue: [
-                    self komplementujRecepcjonistke. "This method might change location"
-                    ^self "komplementujRecepcjonistke handles location change and look"
+                    self komplementujRecepcjonistke.
+                    ^self
                 ] ifFalse: [
                     Transcript show: 'Recepcjonistka patrzy na ciebie z dezaprobatą.'; cr.
                     ^self
@@ -264,7 +259,7 @@ go: destinationSymbol
     newLocation = #szatnia_damska ifTrue: [
         Transcript show: 'Podglądacze nie są tolerowani! Zostałeś wyrzucony z siłowni! Koniec gry.'; cr.
         self die.
-        gameOver ifFalse: [ "If cheated death"
+        gameOver ifFalse: [
             Transcript show: 'Tak naprawdę nie wszedłeś do szatni damskiej, tylko do pomieszczenia dla personelu nazwanego szatnia_damska!'; cr.
         ].
         ^self
@@ -306,7 +301,7 @@ idzDoPrysznica
     heldItems add: #dzik.
     Transcript show: 'Wypij zdobyty napój i poczuj przypływ siły!'; cr.
     Transcript show: 'Automatycznie wracasz do szatni.'; cr.
-    currentLocation := #szatnia_meska. "Redundant if already there, but matches Prolog."
+    currentLocation := #szatnia_meska.
     prysznicSprawdzony := true.
     self look.
 !
@@ -367,7 +362,7 @@ consume: itemNameSymbol
 
     strengthGain := 0.
     itemNameSymbol = #monster ifTrue: [strengthGain := 3].
-    itemNameSymbol = #dzik ifTrue: [strengthGain := 5]. 
+    itemNameSymbol = #dzik ifTrue: [strengthGain := 5].
     itemNameSymbol = #przedtreningowka ifTrue: [strengthGain := 10].
     itemNameSymbol = #mala_strzykawka ifTrue: [strengthGain := 30].
     itemNameSymbol = #duza_strzykawka ifTrue: [strengthGain := 60].
@@ -419,7 +414,7 @@ komplementujRecepcjonistke
     Transcript show: 'Mówisz recepcjonistce, że ma piękny uśmiech.'; cr.
     Transcript show: 'Recepcjonistka przewraca oczami ale mimo to jednak pozwala ci wejść.'; cr.
     currentLocation := #szatnia_meska.
-    szatniaWejscie := true. "Allows entry without ticket from now on"
+    szatniaWejscie := true.
     self look.
 !
 
@@ -436,7 +431,7 @@ buy: itemNameSymbol
     ].
 
     price := itemPrices at: itemNameSymbol ifAbsent: [nil].
-    price isNil ifTrue: [ "Should not happen if buyableAtLocation is correct"
+    price isNil ifTrue: [
         Transcript show: 'Ten przedmiot nie jest na sprzedaż (brak ceny)!'; cr.
         ^self
     ].
@@ -454,9 +449,8 @@ buy: itemNameSymbol
     ].
 ! !
 
-!GymAdventureGame methodsFor: 'npc interaction' stamp: 'AI 6/2/2025 10:30'!
+!GymAdventureGame methodsFor: 'npc interaction'!
 talk: npcSymbol
-    "Special case for Swiezak based on stage, who might not be in npcLocations initially"
     npcSymbol = #swiezak ifTrue: [
         currentLocation = #strefa_wolnych_ciezarow ifTrue: [
             gameStage = 2 ifTrue: [
@@ -612,7 +606,7 @@ interactWith: npcSymbol
     ].
     npcSymbol = #wielki_chlop ifTrue: [
         | count |
-        self incrementInteractionCountFor: npcSymbol. "Prolog starts count at 0, then 1, then 2. Here, 1, 2, 3"
+        self incrementInteractionCountFor: npcSymbol.
         count := npcInteractionCounts at: npcSymbol.
         count = 1 ifTrue: [
             Transcript show: 'Ty: Mogę zabrać talerze...'; cr.
@@ -625,18 +619,18 @@ interactWith: npcSymbol
             Transcript show: 'To był błąd, za nim zdążysz się zorientować, dostajesz od niego cios w brzuch.'; cr.
             Transcript show: 'Nie masz szans przetrwać następnych uderzeń.'; cr.
             self die.
-            gameOver ifFalse: [ "If cheated death"
+            gameOver ifFalse: [
                 Transcript cr; show: 'Przyszła właśnie jego dziewczyna i odwróciło to jego uwagę od ciebie.'; cr.
                 Transcript show: 'Udało ci się przeżyć!'; cr.
             ].
-        ] ifFalse: [ "count >= 4"
+        ] ifFalse: [
             Transcript show: 'Postanawiasz nie zaczepiać wielkiego chłopa więcej, obawiając się o swoje zdrowie.'; cr.
         ]]].
         ^self
     ].
 ! !
 
-!GymAdventureGame methodsFor: 'weight management' stamp: 'AI 6/2/2025 10:30'!
+!GymAdventureGame methodsFor: 'weight management'!
 addWeights: weightsCollection
     weightsCollection do: [:weight |
         weightInventory at: weight put: (weightInventory at: weight ifAbsent: [0]) + 1.
@@ -652,8 +646,6 @@ removeWeights: weightsCollection
         ] ifFalse: [currentCount > 1 ifTrue: [
             weightInventory at: weight put: currentCount - 1.
         ] ifFalse: [
-            "Transcript show: 'Próba usunięcia ciężaru '; show: weight; show: ' kg, którego nie masz w ekwipunku.'; cr."
-            "Prolog version allows this to fail silently in subtract_weights if not found"
         ]].
     ].
 !
@@ -723,7 +715,7 @@ check_bench
     benchLeftWeights do: [:weight | totalLeft := totalLeft + weight].
     totalRight := 0.
     benchRightWeights do: [:weight | totalRight := totalRight + weight].
-    totalWeight := totalLeft + totalRight + 20. "20kg for the bar itself"
+    totalWeight := totalLeft + totalRight + 20.
 
     Transcript show: 'Obciążenie na sztandze wynosi: '; show: totalWeight printString; show: ' kg.'; cr.
 
@@ -734,10 +726,10 @@ check_bench
         diff > 53 ifTrue: [
             Transcript show: 'Sztanga się przewaliła! Wszyscy się teraz z ciebie śmieją. Uciekasz z siłowni'; cr.
             self die.
-            gameOver ifFalse: [ "Cheated death"
+            gameOver ifFalse: [
                 Transcript show: 'Duży chłop powstrzymuje cię przed ucieczką!'; cr.
                 Transcript show: 'I pomaga ci podnieść ciężary!'; cr.
-                self remove_all_weight_bench. "Weights go back to inventory"
+                self remove_all_weight_bench.
                 Transcript show: '(ciężary teraz w twoim ekwipunku)'; cr.
             ].
         ] ifFalse: [
@@ -765,7 +757,7 @@ do_bench_press
         ^self
     ].
 
-    totalWeight := totalLeft + totalRight + 20. "Barbell weight"
+    totalWeight := totalLeft + totalRight + 20.
     Transcript show: 'Podnosisz sztangę o obciążeniu '; show: totalWeight printString; show: ' kg.'; cr.
 
     totalWeight <= strength ifTrue: [
@@ -777,7 +769,7 @@ do_bench_press
     ] ifFalse: [
         Transcript show: 'Obciążenie cię przygniata to będzie twój koniec!'; cr.
         self die.
-        gameOver ifFalse: [ "Cheated death"
+        gameOver ifFalse: [
             Transcript show: 'Przechodzi obok ciebie wielki chłop i jedną ręką podnosi sztangę ratując cię przed marnym końcem!'; cr.
             Transcript show: 'Nie udało ci się wykonać ćwiczenia!'; cr.
         ].
@@ -802,7 +794,7 @@ take_bench
     Transcript show: 'Nie można wykonać takiej akcji teraz!'; cr.
 ! !
 
-!GymAdventureGame methodsFor: 'game stages and helpers' stamp: 'AI 6/2/2025 10:30'!
+!GymAdventureGame methodsFor: 'game stages and helpers'!
 increaseStrength: value
     strength := strength + value.
 !
@@ -833,8 +825,8 @@ startStage: stageNumber
             Transcript show: ' Swiezak: O, dzięki! Nie wiem co bym bez ciebie zrobił!'; cr.
             heldItems remove: #czerwony_bidon ifAbsent: [].
             Transcript show: ' Ty: Nie ma sprawy!'; cr.
-            gameStage := 3. "Advance stage"
-            self startStage: 3. "Call recursively for stage 3 message"
+            gameStage := 3.
+            self startStage: 3.
         ] ifFalse: [
             Transcript show: ' Ty: Niestety, nie widziałem go. Ale i tak teraz odpoczywam pójdę go poszukać (Powiedziałeś już myśląc o tym jaka nagroda cię czeka)'; cr.
             Transcript show: ' Swiezak: Powodzenia!'; cr.
@@ -847,8 +839,7 @@ startStage: stageNumber
         Transcript show: 'Spojrzałeś na datę ważności przedtreningówki i okazało się, że jest przeterminowana'; cr.
         Transcript show: 'Nie chcąc się narzucać, postanowiłeś nie mówić o tym swojemu nowemu znajomemu'; cr.
         Transcript show: 'Jednak wiesz, że nie możesz jej użyć'; cr.
-        "Player receives nothing usable, but the interaction happened."
-        heldItems add: #przeterminowana_przedtreningowka. "Can't be consumed with effect"
+        heldItems add: #przeterminowana_przedtreningowka.
         Transcript cr.
         Transcript show: 'Po odnalezieniu bidonu, wracasz do strefy wolnych ciężarów i szykujesz się na drugą serię.'; cr.
     ].
@@ -857,14 +848,13 @@ startStage: stageNumber
         Transcript show: 'Podczas odpoczynku możesz przejść się po siłowni i porozmawiać z innymi ćwiczącymi.'; cr.
     ].
     stageNumber = 5 ifTrue: [
-        Transcript cr. "Quiet stage, likely preparation for last set"
+        Transcript cr.
     ].
     stageNumber = 6 ifTrue: [
         Transcript show: 'Gratulacje udało ci się wykonać trening!'; cr.
-        score := 1. "Set score to 1 for win"
+        score := 1.
         gameWon := true.
         gameOver := true.
-        "finishGame will be called by the game loop"
     ].
 !
 
@@ -951,13 +941,12 @@ instructions
     Transcript cr.
 ! !
 
-!GymAdventureGame class methodsFor: 'instance creation' stamp: 'AI 6/2/2025 10:30'!
+!GymAdventureGame class methodsFor: 'instance creation'!
 new
     ^super new initialize
 !
 
 play
-    "Convenience method to start the game"
     | game |
     game := self new.
     game startGame.
