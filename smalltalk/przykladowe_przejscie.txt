@@ -1,0 +1,336 @@
+st> FileStream fileIn: 'gym.st'
+Twoim celem jest odbycie treningu na siłowni.
+Zbierz potrzebny ekwipunek z domu, wejdź na siłownię i wykonaj ćwiczenia!
+
+Jesteś w domu. Musisz zebrać ekwipunek na siłownię!
+
+Tutaj znajduje się stroj_sportowy.
+Tutaj znajduje się karnet.
+Tutaj znajduje się woda.
+
+> take woda
+Podniosłeś woda.
+> take stroj_sportowy
+Podniosłeś stroj_sportowy.
+> inventory
+Twój ekwipunek: stroj_sportowy woda
+Ekwipunek ciężarów jest pusty.
+> instructions
+Możesz wykonać następujące akcje:
+- Zabrać przedmioty (take <przedmiot>)
+- Sprawdzić ekwipunek (inventory)
+- Pójść na parking przed siłownię (go parking)
+- Sprawdzić pieniądze (check_money)
+- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)
+- Wyjść z gry (quit)
+
+> go parking
+
+Jesteś na parkingu przed siłownią. Możesz iść do siłowni!
+
+Widzisz tutaj podejrzany_typ.
+
+> talk podejrzany_typ
+Podejrzany typ:
+Witaj, czyżbyś szedł na trening? Może chcesz coś mocniejszego, co na pewno poprawi twoje wyniki? Moje produkty są całkowicie bezpieczne!
+Możesz tutaj kupić:
+ - mala_strzykawka (buy mala_strzykawka) za 30zł
+ - duza_strzykawka (buy duza_strzykawka) za 50zł.
+> check_money
+Masz 81 zł na koncie.
+> buy duza_strzykawka
+Kupiono duza strzykawka.
+Zastanów się dwa razy czy na pewno chcesz jej użyć!
+Pozostało Ci 31 zł.
+> consume duza_strzykawka
+Spożywasz duza_strzykawka.
+Twoja siła wzrosła o 60!
+To był twój ostatni trening. Zmarłeś na skutek przedawkowania sterydów.
+Czy chcesz oszukać koniec gry? (tak / nie )
+tak
+Miałeś niesamowite szczęście.
+Obok przechodził student WUM idący na siłkę i Cię wskrzesił
+> go recepcja
+
+Jesteś w recepcji. Możesz kupić suplementy i karnet!
+
+Widzisz tutaj recepcjonistka.
+
+> talk recepcjonistka
+Recepcjonistka:
+Witaj na siłowni! Czy czegoś ci potrzeba?
+Możesz tutaj kupić:
+ - monster (buy monster) za 10zł
+ - przedtreningowka (buy przedtreningowka) za 20zł
+ - karnet (buy karnet) za 40zł.
+> buy monster
+Kupiono monster.
+Pozostało Ci 21 zł.
+> consume monster
+Spożywasz monster.
+Twoja siła wzrosła o 3!
+> go szatnia
+Nie możesz tam pójść!
+> go szatnia_damska
+Podglądacze nie są tolerowani! Zostałeś wyrzucony z siłowni! Koniec gry.
+Czy chcesz oszukać koniec gry? (tak / nie )
+tak
+Miałeś niesamowite szczęście.
+Tak naprawdę nie wszedłeś do szatni damskiej, tylko do pomieszczenia dla personelu nazwanego szatnia_damska!
+> go szatnia_meska
+Nie masz karnetu! Może chcesz sprawdzić czy skomplementowanie recepcjonistki coś da? (tak/nie)
+tak
+Mówisz recepcjonistce, że ma piękny uśmiech.
+Recepcjonistka przewraca oczami ale mimo to jednak pozwala ci wejść.
+
+Jesteś w męskiej szatni. Możesz udać się do stref treningowych!
+Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku? (go nieczynny_prysznic)
+
+
+> go nieczynny_prysznic
+Podchodzisz do nieczynnego prysznica...
+Nagle znajdujesz tam darmowego Dzika (napój energetyczny)!
+Wypij zdobyty napój i poczuj przypływ siły!
+Automatycznie wracasz do szatni.
+
+Jesteś w męskiej szatni. Możesz udać się do stref treningowych!
+Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku? (go nieczynny_prysznic)
+
+
+> inventory
+Twój ekwipunek: dzik stroj_sportowy woda
+Ekwipunek ciężarów jest pusty.
+> consume dzik
+Spożywasz dzik.
+Twoja siła wzrosła o 5!
+> wear stroj_sportowy
+Przebrałeś się w strój sportowy!
+> go lazienka
+
+Jesteś w łazience.
+
+Tutaj znajduje się czerwony_bidon.
+
+> take czerwony_bidon
+Podniosłeś czerwony_bidon.
+> go szatnia_meska
+Wchodzisz do szatni męskiej!
+
+Jesteś w męskiej szatni. Możesz udać się do stref treningowych!
+Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku? (go nieczynny_prysznic)
+
+
+> go strefa_wolnych_ciezarow
+
+Jesteś w strefie wolnych ciężarów.
+
+Widzisz tutaj wielki_chlop.
+Widzisz tutaj chudy_szczur.
+
+> instructions
+Możesz wykonać następujące akcje:
+- Zająć ławkę (take_bench)
+- Wrócić do szatni (go szatnia_meska)
+- Sprawdzić ekwipunek (inventory)
+- Sprawdzić pieniądze (check_money)
+- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)
+- Dodać ciężar na lewą stronę sztangi (left_add_weight_bench <waga>)
+- Dodać ciężar na prawą stronę sztangi (right_add_weight_bench <waga>)
+- Zdjąć wszystkie ciężary ze sztangi (remove_all_weight_bench)
+- Sprawdzić obciążenie na sztandze (check_bench)
+- Wykonać trening (do_bench_press)
+- Sprawdzić jakie ciężary masz w ekwipunku (show_weight_inventory)
+- Porozmawiać z osobami w okolicy (talk <osoba>)
+- Spożyć przedmioty (consume <przedmiot>)
+- Wyjść z gry (quit)
+
+> take_bench
+Current stage: 0
+Rozpoczynasz trening na klatę! Rozgladasz się obok sztangi, ale nie ma obok niej żadnych ciężarów.
+Pora zebrać ciężary!
+Rozejrzyj się po siłowni i przynieś ciężary, a następnie je nałóż!
+Jeżeli nie znajdziesz nieużywanego sprzętu, możesz spróbować zapytać o niego innych ćwiczących
+Pamiętaj, że z dwóch stron trzeba mieć tyle samo na sztandze!
+Im więcej podniesiesz, tym lepszy wynik zdobędziesz!
+Powodzenia!
+> talk wielki_chlop
+Ty: Mogę zabrać talerze...
+Wielki chłop: Spadaj szczurze!
+> talk chudy_szczur
+Ty: Ej, mały, potrzebuję tych talerzy 5kg, mogę je zabrać?
+Chudy szczur: (piszczy nerwowo) Tylko... nie bij mnie! Bierz, co chcesz, i znikaj!
+Ty: Spoko, luz. Tylko mi je podaj, i będę się zwijał.
+Chudy szczur: (podaje talerze) Masz, i już mnie nie zaczepiaj!
+Dodałeś do swojego ekwipunku ciężary: 5 kg i 5 kg.
+> inventory
+Twój ekwipunek: czerwony_bidon woda
+Ciężary w twoim ekwipunku:
+2x 5kg
+> instructions
+Możesz wykonać następujące akcje:
+- Zająć ławkę (take_bench)
+- Wrócić do szatni (go szatnia_meska)
+- Sprawdzić ekwipunek (inventory)
+- Sprawdzić pieniądze (check_money)
+- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)
+- Dodać ciężar na lewą stronę sztangi (left_add_weight_bench <waga>)
+- Dodać ciężar na prawą stronę sztangi (right_add_weight_bench <waga>)
+- Zdjąć wszystkie ciężary ze sztangi (remove_all_weight_bench)
+- Sprawdzić obciążenie na sztandze (check_bench)
+- Wykonać trening (do_bench_press)
+- Sprawdzić jakie ciężary masz w ekwipunku (show_weight_inventory)
+- Porozmawiać z osobami w okolicy (talk <osoba>)
+- Spożyć przedmioty (consume <przedmiot>)
+- Wyjść z gry (quit)
+
+> left_add_weight_bench 5
+Dodałeś ciężar 5 kg na lewą stronę sztangi.
+Obciążenie na sztandze wynosi: 25 kg.
+Obciążenie na sztandze jest nierówno rozłożone, ale w granicach bezpieczeństwa.
+Różnica w obciążeniu wynosi: 5 kg.
+Ciężary na lewej stronie: OrderedCollection (5 )
+Ciężary na prawej stronie: OrderedCollection ()
+> right_add_weight_bench 5
+Dodałeś ciężar 5 kg na prawą stronę sztangi.
+Obciążenie na sztandze wynosi: 30 kg.
+Obciążenie na sztandze jest równo rozłożone!
+> do_bench_press
+Podnosisz sztangę o obciążeniu 30 kg.
+Gratulacje udało ci się wykonać pierwszą serię!
+Kiedy odpoczywasz po pierwszej serii, podchodzi do ciebie jakiś przeciętnie zbudowany chłopak z pytaniem:
+ Swiezak: Hej, ile zostało ci serii?
+ Ty: Jeszcze dwie.
+ Swiezak: Mogę w takim razie się dołączyć?
+ Ty: Jasne
+ Swiezak: Tak w ogóle nie widziałeś przypadkiem gdzieś na siłowni czerwonego bidonu, musiałem go wczoraj zostawić w szatni. Znalazcy z pewnością się odwdzięczę
+Przypominasz sobie, że podniosłeś taki bidon w łazience
+Podajesz mu bidon
+ Swiezak: O, dzięki! Nie wiem co bym bez ciebie zrobił!
+ Ty: Nie ma sprawy!
+ Swiezak: W nagrodę trzymaj tą przedtreningówę
+ Ty: Dzięki!
+
+Spojrzałeś na datę ważności przedtreningówki i okazało się, że jest przeterminowana
+Nie chcąc się narzucać, postanowiłeś nie mówić o tym swojemu nowemu znajomemu
+Jednak wiesz, że nie możesz jej użyć
+
+Po odnalezieniu bidonu, wracasz do strefy wolnych ciężarów i szykujesz się na drugą serię.
+> do_bench_press
+Podnosisz sztangę o obciążeniu 30 kg.
+Gratulacje udało ci się wykonać drugą serię!
+Podczas odpoczynku możesz przejść się po siłowni i porozmawiać z innymi ćwiczącymi.
+> go szatnia_meska
+Wchodzisz do szatni męskiej!
+
+Jesteś w męskiej szatni. Możesz udać się do stref treningowych!
+Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku? (go nieczynny_prysznic)
+
+
+> instructions
+Możesz wykonać następujące akcje:
+- Udać się do strefy treningowej (go strefa_wolnych_ciezarow / strefa_cardio / strefa_maszyn)
+- Udać się do łazienki (go lazienka)
+- Wrócić na recepcję (go recepcja)
+- Sprawdzić nieczynny prysznic (go nieczynny_prysznic)
+- Przebrać się w strój sportowy (wear stroj_sportowy)
+- Sprawdzić ekwipunek (inventory)
+- Sprawdzić pieniądze (check_money)
+- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)
+- Wyjść z gry (quit)
+
+> go strefa_maszyn
+
+Jesteś w strefie maszyn.
+
+Widzisz tutaj szczur_bojowy.
+Widzisz tutaj duzy_chlop.
+Widzisz tutaj czlowiek_szczuply.
+
+> talk szczur_bojowy
+Ty: Ej, byczku, te 20 kilo... mogę je zabrać?
+Szczur bojowy: Jasne, stary, bierz. I tak mi się już nie przydadzą.
+Ty: Dzięki, jesteś wielki!
+Szczur bojowy: Tylko uważaj, żebyś sobie krzywdy nie zrobił. To ciężkie żelastwo.
+Dodałeś do swojego ekwipunku ciężary: 20 kg i 20 kg.
+> go szatnia_meska
+Wchodzisz do szatni męskiej!
+
+Jesteś w męskiej szatni. Możesz udać się do stref treningowych!
+Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku? (go nieczynny_prysznic)
+
+
+> go strefa_cardio
+Przechodzisz do strefy cardio. Zapatrujesz się na ćwiczące się osoby.
+Nawet nie zauważasz kiedy mija czas na kolejną serię!
+
+Jesteś w strefie cardio.
+
+Widzisz tutaj brunetka.
+
+> talk brunetka
+Ty: Cześć, przepraszam cię najmocniej, że przeszkadzam, ale czy będziesz jeszcze używać tych 10kg?
+Brunetka: Zostaw mnie, mam chłopaka!
+Ty: Źle zrozumiałaś, ja tylko chciałem...
+Brunetka: Mam wezwać ochronę? Spadaj!
+> go szatnia_meska
+Wchodzisz do szatni męskiej!
+
+Jesteś w męskiej szatni. Możesz udać się do stref treningowych!
+Widzisz, że jeden z pryszniców jest nieczynny, może chcesz sprawdzić co jest w środku? (go nieczynny_prysznic)
+
+
+> go strefa_wolnych_ciezarow
+
+Jesteś w strefie wolnych ciężarów.
+
+Widzisz tutaj wielki_chlop.
+Widzisz tutaj chudy_szczur.
+Widzisz tutaj swiezak.
+
+> talk wielki_chlop
+Ty: Ej, serio, potrzebuję tych talerzy. Możesz mi je dać?
+Wielki chłop: Jeszcze jedno słowo i pożałujesz!
+> take_bench
+Current stage: 5
+Wykonujesz to ćwiczenie teraz!
+> inventory
+Twój ekwipunek: przeterminowana_przedtreningowka woda
+Ciężary w twoim ekwipunku:
+2x 20kg
+> instructions
+Możesz wykonać następujące akcje:
+- Zająć ławkę (take_bench)
+- Wrócić do szatni (go szatnia_meska)
+- Sprawdzić ekwipunek (inventory)
+- Sprawdzić pieniądze (check_money)
+- Sprawdzić jakie przedmioty i osoby znajdują się w okolicy (look)
+- Dodać ciężar na lewą stronę sztangi (left_add_weight_bench <waga>)
+- Dodać ciężar na prawą stronę sztangi (right_add_weight_bench <waga>)
+- Zdjąć wszystkie ciężary ze sztangi (remove_all_weight_bench)
+- Sprawdzić obciążenie na sztandze (check_bench)
+- Wykonać trening (do_bench_press)
+- Sprawdzić jakie ciężary masz w ekwipunku (show_weight_inventory)
+- Porozmawiać z osobami w okolicy (talk <osoba>)
+- Spożyć przedmioty (consume <przedmiot>)
+- Wyjść z gry (quit)
+
+> left_add_weight_bench 20
+Dodałeś ciężar 20 kg na lewą stronę sztangi.
+Obciążenie na sztandze wynosi: 50 kg.
+Obciążenie na sztandze jest nierówno rozłożone, ale w granicach bezpieczeństwa.
+Różnica w obciążeniu wynosi: 20 kg.
+Ciężary na lewej stronie: OrderedCollection (5 20 )
+Ciężary na prawej stronie: OrderedCollection (5 )
+> right_add_weight_bench 20
+Dodałeś ciężar 20 kg na prawą stronę sztangi.
+Obciążenie na sztandze wynosi: 70 kg.
+Obciążenie na sztandze jest równo rozłożone!
+> do_bench_press
+Podnosisz sztangę o obciążeniu 70 kg.
+Gratulacje udało ci się wykonać trening!
+Gratulacje! Wygrałeś!
+Twój wynik to: 130
+
+Dziękujemy za grę!
+FileStream
+st>
